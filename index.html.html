@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Evolution of Trains</title>
+<style>
+:root{--bg:#f3f5f8;--card:#fff;--fg:#14202e;--muted:#5b6b7c;--border:#d7dee6;--accent:#1f6feb;--accent-fg:#fff;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e141b;--card:#17202a;--fg:#e6edf5;--muted:#93a3b5;--border:#2a3542;--accent:#4c8dff;--accent-fg:#fff;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0e141b;--card:#17202a;--fg:#e6edf5;--muted:#93a3b5;--border:#2a3542;--accent:#4c8dff;--accent-fg:#fff;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.wrap{max-width:1100px;margin:0 auto;padding:12px}
+h1{font-size:1.25rem;margin:4px 0 2px}
+.sub{color:var(--muted);margin:0 0 10px;font-size:.85rem}
+[hidden]{display:none!important}
+h1 a{color:inherit;text-decoration:none}h1 a:hover{text-decoration:underline}
+.home{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;color:#fff;background:linear-gradient(135deg,#6b4a2b 0%,#2f5f9a 50%,#141a3a 100%)}
+.bigtitle{color:#fff;text-decoration:none;font-size:clamp(2.2rem,8vw,4.5rem);font-weight:800;line-height:1.05;border-bottom:3px solid rgba(255,255,255,.5);padding-bottom:6px}
+.bigtitle:hover{border-color:#fff}
+.home p{max-width:30rem;opacity:.9;margin:16px 0 4px}
+.enter{color:#fff;opacity:.75;font-size:.85rem}
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:14px}
+.card{display:block;text-decoration:none;color:#fff;border-radius:12px;padding:22px 16px;min-height:170px}
+.card h2{margin:0 0 4px;font-size:1.3rem}.card small{display:block;opacity:.9}.card code{display:block;margin-top:10px;font-size:.8rem;opacity:.9}
+.card.c0{background:linear-gradient(160deg,#8a6a3c,#2f5a34)}.card.c1{background:linear-gradient(160deg,#e0a15a,#2f6aa8)}.card.c2{background:linear-gradient(160deg,#1a2848,#6a3fa0)}
+@media(max-width:760px){.cards{grid-template-columns:1fr}}
+.home{background:radial-gradient(ellipse at center,#f3e7cb 0%,#e6d3a8 70%,#cdb27c 100%);color:#3b2a1a;font-family:Georgia,"Times New Roman",serif;padding:18px}
+.frame{width:100%;max-width:980px;border:3px double #7a5a2e;outline:1px solid #7a5a2e;outline-offset:6px;padding:22px 16px 16px;background:rgba(255,248,230,.35);box-shadow:inset 0 0 60px rgba(120,80,30,.25)}
+.home .eyebrow{margin:0;letter-spacing:.35em;text-transform:uppercase;font-size:.7rem;color:#8a3b22;opacity:1}
+.home .bigtitle{color:#3b2a1a;font-family:Georgia,"Times New Roman",serif;font-weight:700;font-size:clamp(2rem,7vw,4.2rem);letter-spacing:.04em;border-bottom:3px double #8a3b22;display:inline-block;margin-top:8px;text-shadow:1px 1px 0 rgba(255,255,255,.5)}
+.home .bigtitle:hover{color:#8a3b22}
+.home .tag{font-style:italic;max-width:34rem;margin:12px auto 0;color:#5a4128;opacity:1}
+.orn{font-size:1.4rem;color:#8a3b22;margin:6px 0 0}
+#heroview{height:44vh;min-height:260px;margin:4px auto 6px;max-width:900px}
+#heroview canvas{display:block;width:100%;height:100%}
+.home .enter{color:#8a3b22;opacity:1;font-size:.8rem;letter-spacing:.2em;text-transform:uppercase}
+#steam{position:fixed;inset:0;z-index:50;pointer-events:none;overflow:hidden;visibility:hidden}
+#steam.go{visibility:visible;animation:sfade 1.5s ease forwards}
+@keyframes sfade{0%{opacity:0}25%{opacity:1}65%{opacity:1}100%{opacity:0}}
+#steam i{position:absolute;left:0;top:var(--y);width:60vmax;height:60vmax;margin:-30vmax 0 0 -30vmax;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.96) 0%,rgba(245,240,230,.85) 40%,rgba(245,240,230,0) 70%);transform:translateX(-60vw) scale(.4);filter:blur(6px)}
+#steam.go i{animation:spuff 1.4s ease-in-out var(--d) forwards}
+@keyframes spuff{to{transform:translateX(70vw) scale(1.3)}}
+.home.leave .frame{animation:zin .7s ease-in forwards}
+@keyframes zin{to{transform:scale(1.35);opacity:0;filter:blur(3px)}}
+.menu{min-height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:18px;background:radial-gradient(ellipse at center,#f3e7cb 0%,#e6d3a8 70%,#cdb27c 100%);color:#3b2a1a;font-family:Georgia,"Times New Roman",serif}
+.menu .frame{max-width:1000px;animation:zout .8s ease backwards}
+@keyframes zout{from{opacity:0;transform:scale(.9)}}
+.menu .eyebrow{margin:0;letter-spacing:.35em;text-transform:uppercase;font-size:.7rem;color:#8a3b22}
+.menu .mtitle{margin:8px 0 0;font-size:clamp(1.8rem,6vw,3.2rem);letter-spacing:.04em}
+.menu .mtitle a{display:inline-block;border-bottom:3px double #8a3b22}
+.menu .tag{font-style:italic;margin:12px auto 0;color:#5a4128}
+.menu .cards{gap:18px;margin:14px 0 6px}
+.menu .card,.menu .card.c0,.menu .card.c1,.menu .card.c2{background:#f7ecd0;color:#3b2a1a;border:3px double #7a5a2e;border-radius:6px;padding:0;min-height:0;overflow:hidden;box-shadow:0 4px 0 #b79a63,0 8px 18px rgba(80,50,20,.25);transition:transform .25s ease,box-shadow .25s ease;animation:rise .7s ease backwards}
+.menu .card:nth-child(2){animation-delay:.15s}.menu .card:nth-child(3){animation-delay:.3s}
+@keyframes rise{from{opacity:0;transform:translateY(45px) scale(.95)}}
+.menu .card:hover,.menu .card:focus-visible{transform:translateY(-14px) rotate(-1deg);box-shadow:0 4px 0 #b79a63,0 24px 32px rgba(80,50,20,.35)}
+.menu .card:nth-child(2):hover{transform:translateY(-14px) rotate(1deg)}
+.menu .band{padding:14px 8px;font-size:2.2rem;color:#fff}
+.c0 .band{background:linear-gradient(160deg,#8a6a3c,#2f5a34)}.c1 .band{background:linear-gradient(160deg,#e0a15a,#2f6aa8)}.c2 .band{background:linear-gradient(160deg,#1a2848,#6a3fa0)}
+.menu .card h2{margin:12px 0 2px;letter-spacing:.15em;font-size:1.4rem}
+.menu .card small{font-style:italic}
+.menu .card code{font-family:Georgia,serif;margin:10px 0 14px}
+.menu .card::after{content:"Board ▸";display:block;padding:9px;border-top:2px dashed #b79a63;letter-spacing:.2em;text-transform:uppercase;font-size:.75rem;color:#8a3b22}
+.menu .enter{display:inline-block;margin-top:16px;color:#8a3b22;opacity:1;font-size:.8rem;letter-spacing:.2em;text-transform:uppercase;text-decoration:none}
+html{scroll-snap-type:y proximity}
+.journey{display:block;padding:0;min-height:0;text-align:left;background:#f6e7d8;color:#2b2320;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.journey #heroview{position:fixed;inset:0;z-index:0;height:auto;min-height:0;max-width:none;margin:0}
+.stop{position:relative;z-index:1;min-height:100vh;display:flex;align-items:center;padding:70px 6vw 30px;scroll-snap-align:start}
+.pane{max-width:430px;background:rgba(255,250,244,.85);backdrop-filter:blur(8px);border-radius:20px;padding:26px 26px 22px;box-shadow:0 20px 50px rgba(120,70,30,.18)}
+.pane .k{font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;color:#e8682a;font-weight:700;margin:0 0 8px;max-width:none;opacity:1}
+.pane h1,.pane h2{margin:0 0 10px;font-size:clamp(2rem,5vw,3.2rem);line-height:1.02;letter-spacing:-.02em;color:#2b2320}
+.pane .o{color:#e8682a}
+.pane p{margin:0 0 14px;max-width:none;opacity:1;color:#5a4a40}
+.eqs{font:600 .85rem ui-monospace,Menlo,monospace;background:#fff;border:1px solid #efd9c4;border-radius:12px;padding:10px 12px;margin:0 0 16px;line-height:1.7}
+.btns{display:flex;flex-wrap:wrap;gap:10px}
+.b1,.b2{font:inherit;font-weight:700;font-size:.92rem;padding:11px 18px;border-radius:999px;border:1px solid transparent;cursor:pointer}
+.b1{background:#e8682a;color:#fff}.b2{background:#fff;color:#2b2320;border-color:#e7cfb8}
+.jnav{position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:5;display:flex;gap:4px;align-items:center;white-space:nowrap;background:rgba(255,250,244,.92);backdrop-filter:blur(8px);border-radius:999px;padding:6px 8px 6px 16px;box-shadow:0 8px 24px rgba(120,70,30,.15);color:#2b2320}
+.jnav b{margin-right:8px;font-size:.9rem;cursor:pointer}
+.jnav button{font:inherit;font-size:.82rem;font-weight:600;padding:6px 12px;border-radius:999px;border:0;background:transparent;color:#2b2320;min-height:0;cursor:pointer}
+.jnav button.on{background:#2b2320;color:#fff}
+.journey .stop,.jnav{display:none}
+.journey{min-height:100vh;background:#2a2016}
+#herotxt{position:fixed;inset:0;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;cursor:pointer;color:#f7ecd0;font-family:Georgia,"Times New Roman",serif;transition:opacity 1s}
+#herotxt.off{opacity:0;pointer-events:none}
+#herotxt .fr{padding:28px 56px;border:3px double #e3b55a;outline:1px solid #e3b55a;outline-offset:7px;background:rgba(32,20,10,.45);backdrop-filter:blur(2px)}
+#herotxt h1{margin:6px 0;font-size:clamp(2.4rem,8vw,5.6rem);letter-spacing:.05em;font-weight:700;text-shadow:0 4px 30px rgba(255,190,90,.6),2px 2px 0 #3b2a1a}
+#herotxt .k{letter-spacing:.4em;text-transform:uppercase;font-size:.75rem;color:#e3b55a;margin:0}
+#herotxt .s{font-style:italic;margin:6px 0 0}
+#herotxt .c{margin-top:18px;letter-spacing:.3em;text-transform:uppercase;font-size:.78rem;color:#e3b55a;animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{50%{opacity:.35}}
+#heroview canvas{transition:filter 1s,transform 1.4s}
+#heroview.blur canvas{filter:blur(7px) brightness(.75);transform:scale(1.06)}
+#pick{position:fixed;inset:0;z-index:2;display:flex;flex-direction:column;opacity:0;pointer-events:none;transition:opacity 1.2s;color:#f7ecd0;font-family:Georgia,"Times New Roman",serif}
+#pick.on{opacity:1;pointer-events:auto}
+#pick h2{position:relative;margin:3vh 0 0;text-align:center;letter-spacing:.2em;text-transform:uppercase;font-size:clamp(1.2rem,3vw,2rem);text-shadow:0 2px 18px rgba(0,0,0,.6)}
+#mview{position:absolute;inset:0;pointer-events:none}#mview canvas{display:block;width:100%;height:100%}
+.cols{position:relative;flex:1;display:grid;grid-template-columns:repeat(3,1fr)}
+.col{display:flex;flex-direction:column;align-items:center;padding-top:7vh;cursor:pointer;color:inherit;transition:background .3s}
+.col:hover{background:linear-gradient(180deg,rgba(227,181,90,.2),transparent 70%)}
+.col .lab{text-align:center;padding:12px 26px;border:2px double #e3b55a;background:rgba(32,20,10,.6)}
+.col .lab small{display:block;letter-spacing:.35em;color:#e3b55a;font-size:.7rem}
+.col .lab h3{margin:2px 0;font-size:clamp(1.3rem,3.4vw,2.2rem);letter-spacing:.18em}
+.col .lab span{font-style:italic;font-size:.9rem}
+.col .go{margin-top:auto;padding-bottom:5vh;letter-spacing:.25em;text-transform:uppercase;font-size:.75rem;color:#e3b55a}
+#app{animation:appin 1s ease}@keyframes appin{from{opacity:0}}
+:root:root:root{--bg:#14100b;--card:#1f1710;--fg:#f3e6c8;--muted:#b9a67f;--border:#5a4526;--accent:#d9a441;--accent-fg:#1a1208;color-scheme:dark}
+body{background:#14100b}
+#app,#app button{font-family:Georgia,"Times New Roman",serif}
+#app h1,#app h1 a{color:#e3b55a;letter-spacing:.06em}
+#app button{letter-spacing:.08em}
+#view{border-color:#8a6a2e;box-shadow:0 0 0 3px #14100b,0 0 0 4px #8a6a2e}
+.g{border-color:#5a4526}
+#label,.hud{background:rgba(20,14,8,.74);border:1px solid #8a6a2e}
+#label,.hud b{color:#e3b55a}
+#pick h2,.col .lab h3{color:#e3b55a}
+.col .lab span{color:#f1d8a0}
+#rot{display:none}
+@media(orientation:portrait) and (max-width:900px){#rot{display:flex;position:fixed;inset:0;z-index:99;align-items:center;justify-content:center;text-align:center;padding:30px;background:#2a2016;color:#f7ecd0;font:1.2rem Georgia,serif}}
+.row{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
+button{font:inherit;font-weight:600;padding:9px 16px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--fg);cursor:pointer;min-height:40px}
+button.on,button.primary{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
+button.sm{font-weight:500;padding:6px 12px;min-height:34px}
+#view{position:relative;height:56vh;min-height:300px;border:1px solid var(--border);border-radius:12px;overflow:hidden;background:#000}
+#view canvas{display:block;width:100%;height:100%}
+#label{position:absolute;left:10px;top:8px;color:#fff;background:rgba(0,0,0,.45);padding:3px 9px;border-radius:6px;font-size:.85rem}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:8px 0}
+.stat{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:8px 10px}
+.stat span{display:block;color:var(--muted);font-size:.72rem}
+.stat b{font-size:1.15rem;font-variant-numeric:tabular-nums}
+.stat small{color:var(--muted);font-weight:400}
+.graphs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.g{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:8px}
+.g canvas{width:100%;height:190px;display:block}
+.g p{margin:4px 0 0;font-size:.8rem;color:var(--muted)}
+.note{color:var(--muted);font-size:.78rem;margin:10px 0 4px}
+.hud{position:absolute;left:10px;top:40px;min-width:178px;padding:7px 10px;border-radius:8px;background:rgba(0,0,0,.55);color:#fff;pointer-events:none;font-variant-numeric:tabular-nums}
+.hud div{display:flex;align-items:baseline;gap:6px;line-height:1.55}
+.hud span{flex:1;font-size:.72rem;opacity:.8}
+.hud b{font-size:.95rem}
+.hud i{font-style:normal;font-size:.7rem;opacity:.8;min-width:30px}
+@media(max-width:760px){.hud{min-width:150px;padding:5px 8px}.hud span{font-size:.66rem}.hud b{font-size:.85rem}}
+@media(max-width:760px){.stats{grid-template-columns:repeat(2,1fr)}.graphs{grid-template-columns:1fr}#view{height:46vh}}
+</style>
+</head>
+<body>
+<div id="rot">Please rotate your device to landscape to view this website.</div>
+<div id="steam"><i style="--y:10%;--d:0s"></i><i style="--y:30%;--d:.06s"></i><i style="--y:50%;--d:.12s"></i><i style="--y:70%;--d:.18s"></i><i style="--y:90%;--d:.24s"></i><i style="--y:20%;--d:.1s"></i><i style="--y:60%;--d:.2s"></i><i style="--y:40%;--d:.3s"></i></div>
+<section id="home" class="home journey">
+<div id="heroview"></div>
+<div id="herotxt"><div class="fr"><p class="k">★ A Journey in Motion ★</p><h1>Evolution of Trains</h1><p class="s">From steam to the future: the mathematics of motion in 3D</p><p class="c">Click anywhere to begin</p></div></div>
+<div id="pick"><div id="mview"></div><h2>Choose Your Era</h2><div class="cols">
+<a class="col" data-go="past"><div class="lab"><small>I</small><h3>PAST</h3><span>Steam Locomotive</span></div><div class="go">Select ▸</div></a>
+<a class="col" data-go="present"><div class="lab"><small>II</small><h3>PRESENT</h3><span>High-Speed Train</span></div><div class="go">Select ▸</div></a>
+<a class="col" data-go="future"><div class="lab"><small>III</small><h3>FUTURE</h3><span>Hyperloop Concept</span></div><div class="go">Select ▸</div></a>
+</div></div>
+<nav class="jnav"><b data-to="0">Evolution of Trains</b><button data-to="1">Past</button><button data-to="2">Present</button><button data-to="3">Future</button></nav>
+<div class="stop"><div class="pane"><p class="k">A journey in motion</p><h1>Evolution of <span class="o">Trains.</span></h1><p>Ride from the age of steam to the Hyperloop and watch the mathematics of motion come alive in 3D.</p><div class="btns"><button class="b1" data-to="1">Begin the journey ↓</button></div></div></div>
+<div class="stop"><div class="pane"><p class="k">Chapter 01 · Past</p><h2>The Age of <span class="o">Steam.</span></h2><p>A steam locomotive with steady, constant acceleration.</p><div class="eqs">s(t) = 2t²<br>v(t) = 4t<br>a(t) = 4</div><div class="btns"><button class="b1" data-go="past">Enter the simulation →</button><button class="b2" data-to="2">Skip to next era ↓</button></div></div></div>
+<div class="stop"><div class="pane"><p class="k">Chapter 02 · Present</p><h2>High-Speed <span class="o">Rail.</span></h2><p>A modern train that starts with an initial speed and accelerates steadily.</p><div class="eqs">s(t) = 3t² + 2t<br>v(t) = 6t + 2<br>a(t) = 6</div><div class="btns"><button class="b1" data-go="present">Enter the simulation →</button><button class="b2" data-to="3">Skip to next era ↓</button></div></div></div>
+<div class="stop"><div class="pane"><p class="k">Chapter 03 · Future</p><h2>The Hyperloop <span class="o">Concept.</span></h2><p>A concept whose acceleration changes over time.</p><div class="eqs">s(t) = t³ − 6t² + 15t<br>v(t) = 3t² − 12t + 15<br>a(t) = 6t − 12</div><div class="btns"><button class="b1" data-go="future">Enter the simulation →</button><button class="b2" data-to="0">Back to the start ↑</button></div></div></div>
+</section>
+<section id="menu" class="menu" hidden><div class="frame">
+<p class="eyebrow">★ Choose Your Era ★</p>
+<h1 class="mtitle"><a href="#home">Evolution of Trains</a></h1>
+<p class="tag">Select a destination to open its interactive 3D simulation.</p>
+<div class="orn">❦</div>
+<div class="cards">
+<a class="card c0" href="#past"><div class="band">🚂</div><h2>PAST</h2><small>Steam Locomotive</small><code>s(t) = 2t²</code></a>
+<a class="card c1" href="#present"><div class="band">🚄</div><h2>PRESENT</h2><small>High-Speed Train</small><code>s(t) = 3t² + 2t</code></a>
+<a class="card c2" href="#future"><div class="band">🚅</div><h2>FUTURE</h2><small>Hyperloop Concept</small><code>s(t) = t³ − 6t² + 15t</code></a>
+</div>
+<a href="#home" class="enter">← Back to the station</a>
+</div></section>
+<div class="wrap" id="app" hidden>
+<h1><a href="#menu">Evolution of Trains</a></h1>
+<p class="sub">Railway Through Time: a 3D visualisation of transportation and the mathematics of motion</p>
+<div class="row" id="nav">
+<button data-env="past" class="on">PAST</button><button data-env="present">PRESENT</button><button data-env="future">FUTURE</button>
+</div>
+<div id="view"><div id="label"></div>
+<div class="hud">
+<div><span>Time</span><b id="vt">0.00</b><i>s</i></div>
+<div><span>Displacement</span><b id="vs">0.00</b><i>m</i></div>
+<div><span>Velocity</span><b id="vv">0.00</b><i>m/s</i></div>
+<div><span>Acceleration</span><b id="va">0.00</b><i>m/s²</i></div>
+</div></div>
+
+<div class="row">
+<button class="primary" id="start">START</button><button id="pause">PAUSE</button><button id="reset">RESET</button>
+<span style="flex:1"></span>
+<button class="sm" data-cam="side">Side view</button><button class="sm" data-cam="chase">Chase view</button><button class="sm" data-cam="top">Top view</button>
+</div>
+<div class="row" style="align-items:center"><label for="tend" style="font-weight:600">End time</label><input type="range" id="tend" min="1" max="5" step="0.1" value="5" style="flex:1;min-width:140px;max-width:260px"><b id="tendv">5.0 s</b></div>
+<p class="note" id="vend" style="margin-top:0"></p>
+<p class="note">Drag to rotate, scroll or pinch to zoom, two-finger drag to pan. The simulation runs from 0 s to the end time you choose (up to 5 s) and then stops automatically.</p>
+<div class="graphs">
+<div class="g"><canvas id="g0"></canvas><p id="e0"></p></div>
+<div class="g"><canvas id="g1"></canvas><p id="e1"></p></div>
+<div class="g"><canvas id="g2"></canvas><p id="e2"></p></div>
+</div>
+<p class="note">All three models are illustrative mathematical interpretations, not measurements from real steam locomotives, high-speed trains or Hyperloop prototypes. Scale: 1 scene unit = 1 metre.</p>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script>
+// ---------- Mathematical models (exact equations) ----------
+const trainModels = {
+  past: { name: "Steam Locomotive", displacement: t => 2 * t ** 2, velocity: t => 4 * t, acceleration: t => 4 },
+  present: { name: "High-Speed Train", displacement: t => 3 * t ** 2 + 2 * t, velocity: t => 6 * t + 2, acceleration: t => 6 },
+  future: { name: "Hyperloop Concept", displacement: t => t ** 3 - 6 * t ** 2 + 15 * t, velocity: t => 3 * t ** 2 - 12 * t + 15, acceleration: t => 6 * t - 12 }
+};
+const EQ = {
+  past: ["s(t) = 2t²", "v(t) = 4t", "a(t) = 4"],
+  present: ["s(t) = 3t² + 2t", "v(t) = 6t + 2", "a(t) = 6"],
+  future: ["s(t) = t³ − 6t² + 15t", "v(t) = 3t² − 12t + 15", "a(t) = 6t − 12"]
+};
+const T_MAX = 5;
+
+// ---------- Scene setup ----------
+const view = document.getElementById('view');
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+view.appendChild(renderer.domElement);
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(50, 1, 0.5, 600);
+const controls = new THREE.OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true; controls.dampingFactor = 0.08;
+controls.maxPolarAngle = Math.PI * 0.495; controls.minDistance = 6; controls.maxDistance = 160;
+const hemi = new THREE.HemisphereLight(0xffffff, 0x444444, 0.8); scene.add(hemi);
+const sun = new THREE.DirectionalLight(0xffffff, 0.8); sun.position.set(40, 60, 30); scene.add(sun);
+
+const mats = {};
+const mat = (c, e) => { const k = c + '|' + (e || 0); return mats[k] || (mats[k] = new THREE.MeshLambertMaterial(e ? { color: c, emissive: c, emissiveIntensity: e } : { color: c })); };
+function box(w, h, d, c, x, y, z, p, e) { const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat(c, e)); m.position.set(x, y, z); (p || scene).add(m); return m; }
+function cyl(rt, rb, h, c, x, y, z, p, seg, rotZ, e) { const m = new THREE.Mesh(new THREE.CylinderGeometry(rt, rb, h, seg || 20), mat(c, e)); m.position.set(x, y, z); if (rotZ) m.rotation.z = Math.PI / 2; (p || scene).add(m); return m; }
+function ball(r, c, x, y, z, p, sx) { const m = new THREE.Mesh(new THREE.SphereGeometry(r, 20, 14), mat(c)); m.position.set(x, y, z); if (sx) m.scale.set(sx[0], sx[1], sx[2]); p.add(m); return m; }
+let seed = 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+
+// ---------- Railway track (shared builder) ----------
+const X0 = -90, X1 = 120, RAIL_TOP = 0.73;
+function track(g, col) {
+  box(X1 - X0, 0.4, 3.8, col.ballast, (X0 + X1) / 2, 0.2, 0, g);
+  const n = Math.floor((X1 - X0) / 1.1);
+  const sl = new THREE.InstancedMesh(new THREE.BoxGeometry(0.35, 0.15, 2.7), mat(col.sleeper), n);
+  const d = new THREE.Object3D();
+  for (let i = 0; i < n; i++) { d.position.set(X0 + i * 1.1, 0.47, 0); d.updateMatrix(); sl.setMatrixAt(i, d.matrix); }
+  g.add(sl);
+  [-0.72, 0.72].forEach(z => box(X1 - X0, 0.22, 0.14, col.rail, (X0 + X1) / 2, 0.62, z, g));
+}
+function ground(g, col, size) { const m = new THREE.Mesh(new THREE.PlaneGeometry(size || 600, size || 600), mat(col)); m.rotation.x = -Math.PI / 2; g.add(m); }
+
+// ---------- Trains ----------
+function wheel(g, r, x, z, col, wheels) {
+  const p = new THREE.Group(); p.position.set(x, r, z);
+  const c = cyl(r, r, 0.16, col, 0, 0, 0, p, 20); c.rotation.x = Math.PI / 2;
+  box(r * 1.9, 0.1, 0.2, 0xb0b0b0, 0, 0, 0, p); box(0.1, r * 1.9, 0.2, 0xb0b0b0, 0, 0, 0, p);
+  g.add(p); wheels.push({ p, r });
+}
+function buildSteam() {
+  const g = new THREE.Group(), w = [];
+  box(11, 0.4, 1.4, 0x222222, 0, 1.1, 0, g);
+  cyl(1.1, 1.1, 7, 0x1b1b1b, 1.5, 2.6, 0, g, 24, true);
+  cyl(0.38, 0.55, 1.5, 0x111111, 4.2, 4.2, 0, g, 16);
+  cyl(0.55, 0.55, 0.7, 0xb8862b, 1.2, 3.9, 0, g, 16);
+  box(2.8, 3, 2.6, 0x2e5d34, -3, 2.9, 0, g); box(3.3, 0.2, 3.1, 0x222222, -3, 4.5, 0, g);
+  box(4.2, 2, 2.4, 0x181818, -7.4, 2.2, 0, g); box(3.6, 0.6, 2, 0x050505, -7.4, 3.4, 0, g);
+  const cone = new THREE.Mesh(new THREE.ConeGeometry(0.9, 1.6, 4), mat(0x333333)); cone.rotation.z = -Math.PI / 2; cone.position.set(5.9, 1.0, 0); g.add(cone);
+  [-0.4, 1.9, 4.2].forEach(x => [-0.72, 0.72].forEach(z => wheel(g, 0.9, x, z, 0xa11d1d, w)));
+  [-6.2, -8.6].forEach(x => [-0.72, 0.72].forEach(z => wheel(g, 0.55, x, z, 0x333333, w)));
+  g.userData.wheels = w; return g;
+}
+function buildModern() {
+  const g = new THREE.Group(), w = [];
+  [-8.3, 0, 8.3].forEach((x, i) => {
+    box(8, 2.8, 2.8, 0xf4f6f8, x, 2.7, 0, g); box(8.02, 0.5, 2.82, 0x1b4fd8, x, 1.9, 0, g); box(7.2, 0.7, 2.84, 0x1a2430, x, 3.2, 0, g);
+    box(7.6, 0.4, 2.2, 0x333b44, x, 1.3, 0, g);
+    [-2.5, 2.5].forEach(bx => [-0.72, 0.72].forEach(z => wheel(g, 0.5, x + bx, z, 0x2a2a2a, w)));
+  });
+  const nose = new THREE.Mesh(new THREE.CylinderGeometry(0.7, 1.9, 4.5, 4), mat(0xf4f6f8)); nose.rotation.z = -Math.PI / 2; nose.rotation.x = Math.PI / 4; nose.position.set(14.6, 2.6, 0); nose.scale.set(1, 1, 0.9); g.add(nose);
+  box(1.6, 0.15, 1.4, 0x555555, 0, 4.3, 0, g); box(0.1, 0.6, 0.1, 0x555555, 0, 4.1, 0, g);
+  g.userData.wheels = w; return g;
+}
+function buildHyper() {
+  const g = new THREE.Group();
+  cyl(1.3, 1.3, 9, 0xd9e2ea, 0, 2.4, 0, g, 28, true);
+  ball(1.3, 0xd9e2ea, 4.5, 2.4, 0, g); ball(1.3, 0xd9e2ea, -4.5, 2.4, 0, g, [1.4, 1, 1]);
+  cyl(1.33, 1.33, 0.35, 0x00e5ff, 1.5, 2.4, 0, g, 28, true, 1); cyl(1.33, 1.33, 0.35, 0x00e5ff, -2.5, 2.4, 0, g, 28, true, 1);
+  box(8, 0.3, 1.2, 0x00e5ff, 0, 1.0, 0, g, 1);
+  g.userData.wheels = []; return g;
+}
+
+// ---------- Environments ----------
+function buildPast() {
+  const g = new THREE.Group(); ground(g, 0x5e8c46); track(g, { ballast: 0x6b5f52, sleeper: 0x4a3524, rail: 0x777777 });
+  box(34, 0.6, 5, 0xa39a8c, 32, 0.3, -5, g);
+  box(14, 5, 6, 0xc9a77c, 32, 3, -10.5, g); box(15, 0.4, 7, 0x6b3a2a, 32, 5.7, -10.5, g);
+  const roof = new THREE.Mesh(new THREE.ConeGeometry(11, 3.2, 4), mat(0x7a3f2b)); roof.rotation.y = Math.PI / 4; roof.position.set(32, 7.5, -10.5); roof.scale.set(1, 1, 0.55); g.add(roof);
+  box(3, 9, 3, 0xb4936a, 22, 4.5, -11, g); cyl(1.1, 1.1, 0.4, 0xf2ead3, 22, 8, -9.45, g, 20).rotation.x = Math.PI / 2;
+  for (let x = 20; x <= 44; x += 6) { cyl(0.15, 0.15, 3.6, 0x3a3a3a, x, 2.4, -3.2, g, 8); }
+  box(26, 0.2, 3, 0x6b3a2a, 32, 4.3, -3.6, g);
+  for (let i = 0; i < 70; i++) {
+    const x = -40 + rnd() * 190, z = (rnd() < .5 ? -1 : 1) * (12 + rnd() * 70); if (z < 0 && x > 12 && x < 52 && z > -22) continue;
+    const s = 1 + rnd() * 1.4; cyl(0.35 * s, 0.45 * s, 2.5 * s, 0x5c3d24, x, 1.25 * s, z, g, 8);
+    const c = new THREE.Mesh(new THREE.ConeGeometry(2 * s, 5 * s, 8), mat(rnd() < .5 ? 0x2f6b34 : 0x3f7d3a)); c.position.set(x, 4 * s, z); g.add(c);
+  }
+  for (let i = 0; i < 9; i++) ball(12 + rnd() * 14, 0x4d7a3c, -30 + i * 24, -6, -120 - rnd() * 40, g, [1.6, 0.8, 1]);
+  for (let i = 0; i < 6; i++) { const x = 70 + i * 9; box(5, 3, 4, 0xd9c9a3, x, 1.5, 22 + (i % 2) * 6, g); const r = new THREE.Mesh(new THREE.ConeGeometry(4, 2, 4), mat(0x8a4b32)); r.rotation.y = Math.PI / 4; r.position.set(x, 4, 22 + (i % 2) * 6); g.add(r); }
+  g.userData.env = { sky: 0xd8c9a6, fog: 0.004, hemi: 0.9, sun: 0.8 }; return g;
+}
+function buildPresent() {
+  const g = new THREE.Group(); ground(g, 0x7d838a); track(g, { ballast: 0x8d8d8d, sleeper: 0x9a9a9a, rail: 0x444444 });
+  box(60, 0.8, 6, 0xb9bec4, 45, 0.4, -5, g); box(60, 0.3, 7, 0x2a3440, 45, 5.6, -5.5, g);
+  [20, 35, 50, 65, 80].forEach(x => cyl(0.2, 0.2, 5, 0x555e66, x, 3, -7.8, g, 8));
+  box(50, 5, 8, 0xdfe6ec, 45, 2.5, -14, g); box(50, 1.2, 8.2, 0x1b4fd8, 45, 5.6, -14, g);
+  for (let x = -25; x < 120; x += 15) { cyl(0.18, 0.18, 8, 0x667078, x, 4, 3.6, g, 8); box(0.2, 0.2, 5, 0x667078, x, 7.6, 1.2, g); }
+  box(X1 - X0, 0.06, 0.06, 0x222222, (X0 + X1) / 2, 7.2, 0, g);
+  const cols = [0x6f8fb0, 0x8aa4bd, 0x5a6e82, 0xaab8c6, 0x3d5068];
+  for (let i = 0; i < 34; i++) {
+    const side = i % 2 ? 1 : -1, w = 8 + rnd() * 12, d = 8 + rnd() * 12, h = 14 + rnd() * 50, x = -30 + (i / 2) * 11 + rnd() * 5, z = side * (28 + rnd() * 40); if (side < 0 && z > -26) continue;
+    box(w, h, d, cols[i % 5], x, h / 2, z, g); box(w * 1.01, h * 0.6, d * 1.01, 0x1a2a3a, x, h * 0.55, z, g);
+  }
+  box(40, 0.1, 6, 0x333a40, 45, 0.05, 15, g);
+  g.userData.env = { sky: 0xb4d3ee, fog: 0.003, hemi: 0.85, sun: 1.0 }; return g;
+}
+function buildFuture() {
+  const g = new THREE.Group(); ground(g, 0x0b1224); const grid = new THREE.GridHelper(600, 120, 0x00e5ff, 0x16304a); grid.position.y = 0.02; g.add(grid);
+  track(g, { ballast: 0x1c2740, sleeper: 0x2b3a5c, rail: 0x00e5ff });
+  const tube = new THREE.Mesh(new THREE.CylinderGeometry(3.3, 3.3, X1 - X0, 32, 1, true), new THREE.MeshLambertMaterial({ color: 0x6fd8ff, transparent: true, opacity: 0.13, side: THREE.DoubleSide }));
+  tube.rotation.z = Math.PI / 2; tube.position.set((X0 + X1) / 2, 2.7, 0); g.add(tube);
+  for (let x = X0; x <= X1; x += 10) { const r = new THREE.Mesh(new THREE.TorusGeometry(3.3, 0.12, 8, 32), mat(0x00e5ff, 1)); r.rotation.y = Math.PI / 2; r.position.set(x, 2.7, 0); g.add(r); }
+  for (let x = X0; x <= X1; x += 30) { box(0.8, 7, 0.8, 0x2b3a5c, x, -3, 0, g); }
+  const pal = [0x00e5ff, 0xff3df2, 0x7a5cff];
+  for (let i = 0; i < 30; i++) {
+    const side = i % 2 ? 1 : -1, w = 5 + rnd() * 8, h = 25 + rnd() * 80, x = -30 + (i / 2) * 11 + rnd() * 6, z = side * (20 + rnd() * 45), c = pal[i % 3];
+    box(w, h, w, 0x111a33, x, h / 2, z, g); box(w * 1.04, h, 0.5, c, x, h / 2, z + w / 2, g, 0.9); box(0.5, h, w * 1.04, c, x + w / 2, h / 2, z, g, 0.9);
+    if (i % 5 === 0) { const t = new THREE.Mesh(new THREE.TorusGeometry(w * 0.9, 0.3, 8, 28), mat(c, 1)); t.rotation.x = Math.PI / 2; t.position.set(x, h + 4, z); g.add(t); }
+  }
+  [[0, 0x00e5ff], [60, 0xff3df2]].forEach(([x, c]) => { const l = new THREE.PointLight(c, 1.2, 80); l.position.set(x, 12, 8); g.add(l); });
+  g.userData.env = { sky: 0x070b1c, fog: 0.006, hemi: 0.45, sun: 0.35 }; return g;
+}
+
+// ---------- Photo-matched redesign (these later declarations replace the earlier builders) ----------
+const FUT_H = 9;
+function pine(g, x, y, z, s) { cyl(.25 * s, .35 * s, 1.5 * s, 0x4a3320, x, y + .75 * s, z, g, 6); [0, 1].forEach(i => { const c = new THREE.Mesh(new THREE.ConeGeometry((2.4 - i * .8) * s, 4.2 * s, 8), mat(i ? 0x2d5a34 : 0x24492c)); c.position.set(x, y + (3 + i * 2) * s, z); g.add(c); }); }
+function winTex() { const c = document.createElement('canvas'); c.width = c.height = 64; const x = c.getContext('2d'); x.fillStyle = '#0e1a2e'; x.fillRect(0, 0, 64, 64); for (let i = 0; i < 8; i++) for (let j = 0; j < 8; j++) if (Math.random() < .55) { x.fillStyle = Math.random() < .7 ? '#ffd98a' : '#9fd2ff'; x.fillRect(i * 8 + 1, j * 8 + 1, 6, 5); } const t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; return t; }
+function buildSteam() {
+  const g = new THREE.Group(), w = [];
+  box(11, 0.4, 1.4, 0x1a1a1a, 0, 1.1, 0, g);
+  cyl(1.1, 1.1, 7, 0x151515, 1.5, 2.6, 0, g, 24, true);
+  cyl(1.12, 1.12, 0.25, 0x2b2b2b, 5.05, 2.6, 0, g, 24, true); cyl(0.8, 0.8, 0.1, 0x0d0d0d, 5.2, 2.6, 0, g, 24, true);
+  cyl(0.4, 0.6, 1.5, 0x0d0d0d, 3.9, 4.3, 0, g, 16); cyl(0.55, 0.55, 0.7, 0x1a1a1a, 0.6, 3.9, 0, g, 16); cyl(0.5, 0.5, 0.6, 0x2a2a2a, 2.2, 3.85, 0, g, 16);
+  box(0.5, 0.5, 0.5, 0xe8d9a0, 5.4, 3.5, 0, g, 0.8);
+  box(3, 3.1, 2.6, 0x161616, -3, 2.95, 0, g); box(3.5, 0.25, 3, 0x101010, -3, 4.6, 0, g);
+  box(4.2, 2, 2.4, 0x161616, -7.4, 2.2, 0, g); box(3.6, 0.5, 2, 0x050505, -7.4, 3.4, 0, g);
+  const cone = new THREE.Mesh(new THREE.ConeGeometry(0.9, 1.6, 4), mat(0x333333)); cone.rotation.z = -Math.PI / 2; cone.position.set(5.9, 1.0, 0); g.add(cone);
+  [-0.4, 1.9, 4.2].forEach(x => [-0.72, 0.72].forEach(z => wheel(g, 0.9, x, z, 0x1f1f1f, w)));
+  [-6.2, -8.6].forEach(x => [-0.72, 0.72].forEach(z => wheel(g, 0.55, x, z, 0x333333, w)));
+  [[3.4, 6.4, 0.7], [1.6, 7.8, 1.0], [-1, 9.2, 1.3]].forEach(p => { const m = ball(p[2], 0xe6e6e6, p[0], p[1], 0, g); m.material = new THREE.MeshLambertMaterial({ color: 0xe6e6e6, transparent: true, opacity: 0.6 }); });
+  [-15.8, -27.4, -39].forEach(x => {
+    box(11, 0.4, 1.4, 0x1a1a1a, x, 1.1, 0, g); box(11, 2.9, 2.6, 0x7a1f26, x, 2.8, 0, g); box(9.8, 0.85, 2.62, 0x34231b, x, 3.2, 0, g);
+    box(11.4, 0.3, 2.9, 0x232323, x, 4.5, 0, g); box(8, 0.3, 1.4, 0x232323, x, 4.8, 0, g);
+    [-3.5, 3.5].forEach(bx => [-0.72, 0.72].forEach(z => wheel(g, 0.45, x + bx, z, 0x222222, w)));
+  });
+  g.userData.wheels = w; return g;
+}
+function buildModern() {
+  const g = new THREE.Group(), w = [], W = 0xf4f6f8;
+  for (let i = 0; i < 6; i++) {
+    const x = (i - 3.5) * 9.4;
+    box(9, 2.8, 2.8, W, x, 2.7, 0, g); box(9.02, 0.3, 2.82, 0x1c4fa8, x, 2.0, 0, g); box(8.2, 0.5, 2.84, 0x16222e, x, 3.25, 0, g);
+    box(8.6, 0.12, 1.6, 0xbfc4ca, x, 4.15, 0, g); box(8, 0.7, 2.4, 0x555b63, x, 1.0, 0, g);
+    [-3, 3].forEach(bx => [-0.72, 0.72].forEach(z => wheel(g, 0.5, x + bx, z, 0x2a2a2a, w)));
+  }
+  ball(1, W, 18.6, 2.7, 0, g, [5, 1.45, 1.4]); ball(1, W, -37.4, 2.7, 0, g, [5, 1.45, 1.4]);
+  ball(1, 0x182733, 20.3, 3.55, 0, g, [1.6, 0.5, 1.05]);
+  [-0.6, 0.6].forEach(z => { const m = ball(0.2, 0xffffff, 23.4, 2.2, z, g); m.material = mat(0xfff4d0, 1.5); });
+  g.userData.wheels = w; return g;
+}
+function buildHyper() {
+  const g = new THREE.Group(), S = 0xc7cfd7;
+  for (let i = 0; i < 4; i++) {
+    const x = (i - 1.5) * 9.4, b = cyl(1.5, 1.5, 9, S, x, 2.7, 0, g, 28, true); b.scale.x = 0.85;
+    box(8.6, 0.55, 2.97, 0x141c26, x, 2.95, 0, g); box(9, 0.07, 2.8, 0xffeec4, x, 2.2, 0, g, 1); box(8, 0.5, 2.4, 0x59626e, x, 1.15, 0, g);
+  }
+  ball(1, S, 18.6, 2.7, 0, g, [3.4, 1.275, 1.5]); ball(1, S, -18.6, 2.7, 0, g, [3.4, 1.275, 1.5]);
+  ball(1, 0x0b121b, 19.9, 2.95, 0, g, [2.3, 0.9, 1.25]);
+  [-0.7, 0.7].forEach(z => { const m = ball(0.22, 0xffffff, 21.9, 2.2, z, g); m.material = mat(0xfff4d0, 1.5); });
+  g.userData.wheels = []; return g;
+}
+function buildPast() {
+  const g = new THREE.Group(); ground(g, 0x7aa352); track(g, { ballast: 0xa39d90, sleeper: 0x5a4330, rail: 0x6e6a66 });
+  for (let i = 0; i < 9; i++) {
+    const sg = i % 3 === 0 ? 1 : -1, hx = -90 + i * 30 + rnd() * 10, hz = sg * (55 + rnd() * 60), R = 30 + rnd() * 18, H = 18 + rnd() * 16;
+    ball(1, 0x5f8f48, hx, -2, hz, g, [R * 1.4, H, R]);
+    for (let k = 0; k < 12; k++) { const a = rnd() * 6.28, r = rnd() * 0.8; pine(g, hx + Math.cos(a) * r * R * 1.4, -3 + H * Math.sqrt(Math.max(0, 1 - r * r)), hz + Math.sin(a) * r * R, 1.3 + rnd()); }
+  }
+  for (let i = 0; i < 50; i++) { const sg = rnd() < 0.5 ? -1 : 1; pine(g, -100 + rnd() * 230, 0, sg * (10 + rnd() * 30), 0.9 + rnd()); }
+  for (let i = 0; i < 40; i++) { const sg = rnd() < 0.5 ? -1 : 1; ball(1, 0x6b8f3c, -100 + rnd() * 230, 0.6, sg * (5 + rnd() * 18), g, [1.6 + rnd() * 1.5, 0.9, 1.4]); }
+  for (let i = 0; i < 6; i++) ball(1, 0xc2b25f, -80 + i * 35, 0, (i % 2 ? 1 : -1) * 16, g, [12, 0.1, 7]);
+  g.userData.env = { sky: 0x86bdf0, fog: 0.0035, hemi: 0.95, sun: 0.9 }; return g;
+}
+function buildPresent() {
+  const g = new THREE.Group(); ground(g, 0x8b7650);
+  const fc = [0x9a7f55, 0x7f9a4a, 0xb8a45e, 0x6f5a3c, 0x8fae52, 0xa08a62];
+  for (let i = 0; i < 40; i++) box(14 + rnd() * 26, 0.06, 10 + rnd() * 16, fc[i % 6], -90 + rnd() * 220, 0.04 + i * 0.002, (rnd() < 0.5 ? -1 : 1) * (14 + rnd() * 70), g);
+  const tc = { ballast: 0x6e6a66, sleeper: 0x8a8782, rail: 0x5a5f66 }; track(g, tc);
+  const t2 = new THREE.Group(); t2.position.z = -6; track(t2, tc); g.add(t2);
+  box(X1 - X0, 1.6, 0.4, 0xa9a59c, (X0 + X1) / 2, 0.8, -9.5, g);
+  for (let x = X0; x < X1; x += 18) { cyl(0.18, 0.18, 8, 0x6a6f75, x, 4, 3.8, g, 8); box(0.2, 0.2, 4.4, 0x6a6f75, x, 7.6, 1.8, g); }
+  box(X1 - X0, 0.06, 0.06, 0x222222, (X0 + X1) / 2, 7.2, 0, g);
+  const roofs = [0x2f7f9a, 0xa84a3a, 0x6b7076];
+  for (let i = 0; i < 16; i++) {
+    const w = 5 + rnd() * 3, x = -80 + rnd() * 190, z = (rnd() < 0.5 ? -1 : 1) * (18 + rnd() * 45); box(w, 4, w * 0.9, 0xe3d8c3, x, 2, z, g);
+    const r = new THREE.Mesh(new THREE.ConeGeometry(w * 0.85, 2.6, 4), mat(roofs[i % 3])); r.rotation.y = Math.PI / 4; r.position.set(x, 5.3, z); g.add(r);
+  }
+  const wire = new THREE.MeshBasicMaterial({ color: 0x8a9098, wireframe: true });
+  [[80, -40], [-40, -50]].forEach(p => { const m = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 3.2, 30, 4, 6, true), wire); m.rotation.y = Math.PI / 4; m.position.set(p[0], 15, p[1]); g.add(m); box(10, 0.3, 0.3, 0x8a9098, p[0], 27, p[1], g); });
+  for (let i = 0; i < 8; i++) ball(1, 0x6f86a0, -100 + i * 45, 0, -260, g, [70, 55 + rnd() * 30, 40]);
+  for (let i = 0; i < 40; i++) { const h = 4 + rnd() * 9; box(6 + rnd() * 6, h, 6 + rnd() * 6, 0xb8b2a8, -80 + rnd() * 200, h / 2, -130 - rnd() * 20, g); }
+  for (let i = 0; i < 7; i++) ball(1, 0xffffff, -80 + i * 35, 90, -80 + (i % 3) * 40, g, [30, 5, 12]);
+  g.userData.env = { sky: 0x78b4e8, fog: 0.0025, hemi: 0.9, sun: 1.0 }; return g;
+}
+function buildFuture() {
+  const g = new THREE.Group(); ground(g, 0x1d2027); const cx = (X0 + X1) / 2, L = X1 - X0;
+  const tg = new THREE.Group(); tg.position.y = FUT_H; track(tg, { ballast: 0x3b4450, sleeper: 0x59616d, rail: 0x9aa6b4 }); g.add(tg);
+  box(L, 1.2, 5, 0xaeb6c0, cx, FUT_H - 0.6, 0, g);
+  [-2.1, 2.1].forEach(z => { box(L, 0.7, 0.25, 0x8a929c, cx, FUT_H + 0.35, z, g); box(L, 0.08, 0.08, 0xfff0c8, cx, FUT_H + 0.55, z * 1.02, g, 1); });
+  for (let x = X0 + 10; x < X1; x += 24) cyl(0.9, 1.2, FUT_H - 1.2, 0x9aa2ac, x, (FUT_H - 1.2) / 2, 0, g, 12);
+  box(L, 0.05, 12, 0x15171c, cx, 0.03, 16, g); box(L, 0.2, 5, 0x4a4f58, cx, 0.1, 24.5, g);
+  for (let x = X0; x < X1; x += 8) box(3, 0.06, 0.25, 0xe8e8e8, x, 0.08, 16, g);
+  for (let x = X0; x < X1; x += 20) { cyl(0.12, 0.15, 7, 0x3a3f48, x, 3.5, 22.5, g, 6); const m = ball(0.4, 0xffd98a, x, 7.2, 21.8, g); m.material = mat(0xffd98a, 1); }
+  for (let i = 0; i < 6; i++) { const x = -80 + i * 32 + rnd() * 10, z = i % 2 ? 13 : 19; box(4, 1.2, 1.8, 0x303640, x, 0.8, z, g); box(0.1, 0.3, 1.5, 0xff2a2a, x - 2, 0.9, z, g, 1); }
+  const base = winTex();
+  for (let i = 0; i < 30; i++) {
+    const sg = i % 2 ? 1 : -1, w = 8 + rnd() * 12, d = 8 + rnd() * 10, h = 30 + rnd() * 70, x = -90 + (i >> 1) * 15 + rnd() * 6, z = sg > 0 ? 34 + rnd() * 40 : -(16 + rnd() * 40);
+    const tx = base.clone(); tx.repeat.set(w / 6, h / 6); tx.needsUpdate = true;
+    const b = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), new THREE.MeshLambertMaterial({ map: tx, emissiveMap: tx, emissive: 0xffffff })); b.position.set(x, h / 2, z); g.add(b);
+    box(w * 1.02, 4, d * 1.02, 0xffc870, x, 2, z, g, 0.7);
+  }
+  g.userData.env = { sky: 0x1a2848, fog: 0.004, hemi: 0.7, sun: 0.35 }; return g;
+}
+
+// ---------- Detail pass: past and present matched to new photos ----------
+function cabin(g, x, z, s) {
+  const k = new THREE.Group(); k.position.set(x, 0, z); k.scale.setScalar(s); g.add(k);
+  box(6, 3, 4.4, 0x6b4b30, 0, 1.5, 0, k); for (let i = 0; i < 5; i++) box(6.05, 0.12, 4.45, 0x4a321f, 0, 0.5 + i * 0.6, 0, k);
+  const r = new THREE.Mesh(new THREE.ConeGeometry(4.6, 2.6, 4), mat(0x6d6358)); r.rotation.y = Math.PI / 4; r.scale.set(1.35, 1, 0.95); r.position.y = 4.2; k.add(r);
+  box(0.9, 1.8, 0.1, 0x2a1c10, 0, 0.9, 2.25, k);
+  for (let i = 0; i < 9; i++) cyl(0.08, 0.08, 1.4, 0x5a4630, -5 + i * 1.25, 0.7, 5, k, 5); box(10, 0.1, 0.1, 0x5a4630, 0, 1.1, 5, k); box(10, 0.1, 0.1, 0x5a4630, 0, 0.6, 5, k);
+}
+function church(g, x, z) {
+  const W = 0xf1eee6, Gd = 0xe0b43a;
+  box(16, 7, 8, W, x, 3.5, z, g); box(17, 0.5, 9, 0x4a5560, x, 7.2, z, g);
+  [[0, 13], [-6, 9], [6, 9]].forEach((p, i) => { const xx = x + p[0], h = p[1]; box(i ? 3 : 5, h, i ? 3 : 5, W, xx, h / 2, z, g); ball(1.7, Gd, xx, h + 1.2, z, g, [1, 1.4, 1]); box(0.2, 2, 0.2, Gd, xx, h + 3.6, z, g); box(1, 0.2, 0.2, Gd, xx, h + 4, z, g); });
+  for (let i = 0; i < 5; i++) box(0.9, 2.2, 0.1, 0x4a5560, x - 6 + i * 3, 3.5, z + 4.05, g);
+}
+function animSmoke() { const T = performance.now() / 1000; (trains.past.userData.puffs || []).forEach((m, i) => { const a = (T * 0.18 + i / 12) % 1; m.position.set(3.9 - a * 16, 5.4 + a * 9, Math.sin(i * 2 + a * 3) * 1.2); m.scale.setScalar(0.7 + a * 2.6); m.material.opacity = 0.8 * (1 - a); }); }
+function buildSteam() {
+  const g = new THREE.Group(), w = [], B = 0x151515, R = 0xc0281f;
+  box(11, 0.4, 1.4, B, 0, 1.1, 0, g);
+  cyl(1.1, 1.1, 7, B, 1.5, 2.6, 0, g, 24, true); [-1.2, 0.4, 2, 3.6].forEach(x => cyl(1.14, 1.14, 0.12, 0x2c2c2c, x, 2.6, 0, g, 24, true));
+  cyl(1.12, 1.12, 0.25, 0x2b2b2b, 5.05, 2.6, 0, g, 24, true); cyl(0.8, 0.8, 0.1, 0x0d0d0d, 5.2, 2.6, 0, g, 24, true);
+  cyl(0.55, 0.38, 1.6, B, 3.9, 4.4, 0, g, 16); cyl(0.6, 0.6, 0.15, 0x0d0d0d, 3.9, 5.25, 0, g, 16);
+  box(1.8, 0.9, 1.6, 0x101010, 1.2, 4.1, 0, g); cyl(0.5, 0.5, 0.8, 0x1a1a1a, 2.6, 3.95, 0, g, 16); cyl(0.35, 0.35, 0.9, 0x1a1a1a, -0.4, 3.9, 0, g, 12);
+  box(0.8, 0.7, 0.7, 0x181818, 4.6, 4.25, 0, g); cyl(0.25, 0.25, 0.15, 0xfff0c0, 5.05, 4.25, 0, g, 12, true, 1);
+  [-1.18, 1.18].forEach(z => box(6.5, 0.06, 0.06, 0x8a8a8a, 1.5, 3.1, z, g));
+  box(3, 3.1, 2.6, 0x161616, -3, 2.95, 0, g); box(3.5, 0.25, 3, 0x101010, -3, 4.6, 0, g); [-1.32, 1.32].forEach(z => box(1, 1, 0.06, 0x6a7882, -3, 3.5, z, g));
+  box(4.2, 2, 2.4, B, -7.4, 2.2, 0, g); box(3.6, 0.5, 2, 0x050505, -7.4, 3.4, 0, g); box(4.22, 0.25, 2.42, R, -7.4, 1.35, 0, g);
+  const cone = new THREE.Mesh(new THREE.ConeGeometry(0.9, 1.6, 4), mat(R)); cone.rotation.z = -Math.PI / 2; cone.position.set(5.9, 1.0, 0); g.add(cone);
+  [-0.6, -0.3, 0, 0.3, 0.6].forEach(z => box(1.3, 0.08, 0.08, 0x6a120e, 5.6, 1.0, z, g));
+  [-0.4, 1.9, 4.2].forEach(x => [-0.72, 0.72].forEach(z => wheel(g, 0.9, x, z, R, w)));
+  [-6.2, -8.6].forEach(x => [-0.72, 0.72].forEach(z => wheel(g, 0.55, x, z, 0x333333, w)));
+  g.userData.puffs = []; for (let i = 0; i < 12; i++) { const m = ball(1, 0xf5f5f5, 0, 0, 0, g); m.material = new THREE.MeshLambertMaterial({ color: 0xf5f5f5, transparent: true, opacity: 0.7, depthWrite: false }); g.userData.puffs.push(m); }
+  [-15.8, -27.4, -39].forEach(x => {
+    box(11, 0.4, 1.4, B, x, 1.1, 0, g); box(11, 1.5, 2.6, 0x5a2a27, x, 2.25, 0, g); box(11.02, 1.2, 2.62, 0xe9dcb5, x, 3.6, 0, g);
+    for (let i = 0; i < 8; i++) box(0.8, 0.8, 2.66, 0x2a2420, x - 4.2 + i * 1.2, 3.65, 0, g);
+    box(11.4, 0.35, 2.9, 0x2b2b2b, x, 4.4, 0, g); box(10, 0.3, 1.9, 0x2b2b2b, x, 4.7, 0, g);
+    [-3.5, 3.5].forEach(bx => [-0.72, 0.72].forEach(z => wheel(g, 0.45, x + bx, z, 0x222222, w)));
+  });
+  g.userData.wheels = w; return g;
+}
+function buildPast() {
+  const g = new THREE.Group(); ground(g, 0x89a24c); track(g, { ballast: 0x8a867e, sleeper: 0x9a958c, rail: 0x6e4a38 });
+  for (let i = 0; i < 7; i++) ball(1, 0x7a9a47, -80 + i * 36, -1.5, (i % 2 ? -1 : 1) * (22 + rnd() * 20), g, [30 + rnd() * 10, 3.5, 18]);
+  for (let i = 0; i < 8; i++) ball(1, 0xb7ad5a, -90 + i * 30, 0, (i % 2 ? -1 : 1) * (10 + rnd() * 12), g, [14, 0.15, 8]);
+  box(260, 0.05, 1.4, 0x8a7556, 15, 0.05, -18, g);
+  [[40, -24, 1], [-20, -30, 0.9], [75, -16, 0.8], [-60, 22, 1], [25, 26, 0.9], [90, 30, 1], [-52, -62, 1], [-8, -68, 0.9]].forEach(c => cabin(g, c[0], c[1], c[2]));
+  church(g, -35, -78);
+  for (let i = 0; i < 70; i++) pine(g, -130 + rnd() * 290, 0, -150 - rnd() * 18, 2.2 + rnd() * 1.2);
+  for (let i = 0; i < 25; i++) pine(g, -100 + rnd() * 230, 0, (rnd() < 0.5 ? -1 : 1) * (35 + rnd() * 25), 1 + rnd());
+  for (let i = 0; i < 5; i++) ball(1, 0xffffff, -80 + i * 45, 100, -200, g, [35, 5, 12]);
+  g.userData.env = { sky: 0x8fc0ec, fog: 0.0028, hemi: 1, sun: 0.95 }; return g;
+}
+function buildPresent() {
+  const g = new THREE.Group(), cx = (X0 + X1) / 2, L = X1 - X0; ground(g, 0x5b5148);
+  const tc = { ballast: 0x6a6560, sleeper: 0x8a8782, rail: 0x6b4c3a }; track(g, tc);
+  [6, 12, -15].forEach(z => { const t = new THREE.Group(); t.position.z = z; track(t, tc); g.add(t); });
+  box(L, 1, 8, 0x7c7a78, cx, 0.5, -7, g); [-3.5, -10.5].forEach(z => box(L, 0.04, 0.5, 0xf2c230, cx, 1.02, z, g)); box(L, 0.04, 0.6, 0xe8b923, cx, 1.02, -7, g);
+  for (let x = X0; x < X1; x += 8) box(0.5, 0.03, 0.18, 0xdddddd, x, 1.02, -5, g);
+  box(L, 0.3, 9, 0x7a6d5d, cx, 7.35, -7.5, g); [-4, -11].forEach(z => box(L, 0.4, 0.4, 0x8e8a80, cx, 6.9, z, g));
+  for (let x = X0 + 10; x < X1; x += 12) {
+    cyl(0.25, 0.25, 6, 0xe7e3da, x, 4, -8, g, 10); box(0.4, 0.5, 9.4, 0x8e8a80, x, 7.05, -7.5, g); box(0.25, 0.2, 1.2, 0xfff4d0, x + 3, 6.6, -6, g, 1);
+    if ((x - X0 - 10) % 36 === 0) { box(0.25, 1.5, 3.2, 0x2a2d32, x, 5.6, -8, g); box(0.05, 1.2, 2.9, 0xf3d88a, x + 0.15, 5.6, -8, g, 0.9); box(0.05, 1.2, 2.9, 0xf3d88a, x - 0.15, 5.6, -8, g, 0.9); }
+    if ((x - X0 - 10) % 24 === 0) { box(2.6, 0.12, 0.7, 0x8a919a, x + 4, 1.6, -5, g); box(2.6, 0.7, 0.1, 0x8a919a, x + 4, 2.0, -5.3, g); [-1, 1].forEach(s => box(0.1, 0.55, 0.6, 0x555a60, x + 4 + s * 1.1, 1.3, -5, g)); }
+  }
+  for (let x = X0; x < X1; x += 15) { cyl(0.18, 0.18, 8.5, 0x6a6f75, x, 4.25, 3.8, g, 8); cyl(0.18, 0.18, 8.5, 0x6a6f75, x, 4.25, 14, g, 8); box(0.3, 0.3, 14, 0x777c82, x, 8.2, 6, g); }
+  [0, 6, 12, -15].forEach(z => { box(L, 0.05, 0.05, 0x1d1d1d, cx, 7.2, z, g); box(L, 0.05, 0.05, 0x1d1d1d, cx, 7.6, z, g); });
+  [60, 100].forEach(x => { cyl(0.12, 0.12, 6, 0x333333, x, 3, 3.6, g, 6); box(0.7, 1.6, 0.5, 0x222222, x, 6.4, 3.6, g); const m = ball(0.22, 0xff2a2a, x, 6.8, 3.9, g); m.material = mat(0xff2a2a, 1.5); });
+  box(L, 3, 0.15, 0xc2b496, cx, 1.5, -24, g);
+  for (let i = 0; i < 44; i++) { const x = -90 + rnd() * 220, z = i % 2 ? -(27 + rnd() * 20) : 18 + rnd() * 25, s = 1 + rnd() * 0.8; cyl(0.4, 0.5, 4, 0x4a3320, x, 2, z, g, 6); ball(1, [0x3e5a34, 0xc7782f, 0x6f8a3d][i % 3], x, 5.5 + s, z, g, [3.2 * s, 3.4 * s, 3.2 * s]); }
+  for (let i = 0; i < 25; i++) { const h = 6 + rnd() * 12; box(8 + rnd() * 6, h, 8 + rnd() * 6, i % 2 ? 0xb09a86 : 0xa3917e, -90 + rnd() * 220, h / 2, -70 - rnd() * 15, g); }
+  for (let i = 0; i < 6; i++) ball(1, 0x6a5a52, -100 + i * 50, 0, -170, g, [90, 30, 50]);
+  g.userData.env = { sky: 0xf0b88a, fog: 0.004, hemi: 0.8, sun: 1.15, sunc: 0xffc98a, hemic: 0xffe0b8 }; return g;
+}
+
+// ---------- Assemble ----------
+const envs = { past: buildPast(), present: buildPresent(), future: buildFuture() };
+const trains = { past: buildSteam(), present: buildModern(), future: buildHyper() };
+detailPass();
+Object.keys(envs).forEach(k => { trains[k].position.y = RAIL_TOP + (k === 'future' ? FUT_H : 0); scene.add(envs[k]); scene.add(trains[k]); });
+
+(function () {
+  const g = trains.present;
+  for (let i = 0; i < 6; i++) {
+    const x = (i - 3.5) * 9.4;
+    [-2.2, 2.2].forEach(d => { box(1.1, 2.3, 2.86, 0xdfe3e7, x + d, 2.6, 0, g); box(0.7, 0.8, 2.88, 0x16222e, x + d, 3.1, 0, g); });
+    if (i === 1 || i === 4) { box(1.6, 0.12, 1.4, 0x555a60, x, 4.3, 0, g); box(0.1, 1.2, 0.1, 0x555a60, x - 0.4, 4.9, 0, g); box(1.4, 0.1, 1.6, 0x333333, x - 0.4, 5.5, 0, g); }
+  }
+})();
+
+// ---------- State ----------
+let cur = 'past', t = 0, running = false, tEnd = 5;
+const $ = id => document.getElementById(id);
+const camPresets = { side: [0, 16, 46], chase: [-32, 12, 12], top: [0, 58, 6] };
+let camGoal = null;
+
+function applyTrain() {
+  const m = trainModels[cur], s = m.displacement(t), tr = trains[cur];
+  tr.position.x = s;
+  tr.userData.wheels.forEach(w => { w.p.rotation.z = -s / w.r; });
+}
+function updateUI() {
+  const m = trainModels[cur];
+  $('vt').textContent = t.toFixed(2); $('vs').textContent = m.displacement(t).toFixed(2);
+  $('vv').textContent = m.velocity(t).toFixed(2); $('va').textContent = m.acceleration(t).toFixed(2);
+  $('vend').textContent = 'At ' + tEnd.toFixed(1) + ' s: speed ' + m.velocity(tEnd).toFixed(2) + ' m/s, distance ' + m.displacement(tEnd).toFixed(2) + ' m';
+  drawGraphs();
+}
+function setCam(name) { camGoal = camPresets[name]; }
+function setEnv(k) {
+  cur = k; running = false; t = 0;
+  Object.keys(envs).forEach(e => { envs[e].visible = trains[e].visible = (e === k); });
+  const cfg = envs[k].userData.env;
+  scene.background = new THREE.Color(cfg.sky); scene.fog = new THREE.FogExp2(cfg.sky, cfg.fog);
+  hemi.intensity = cfg.hemi; sun.intensity = cfg.sun; sun.color.set(cfg.sunc || 0xffffff); hemi.color.set(cfg.hemic || 0xffffff);
+  document.querySelectorAll('#nav button').forEach(b => b.classList.toggle('on', b.dataset.env === k));
+  $('label').textContent = trainModels[k].name;
+  [0, 1, 2].forEach(i => $('e' + i).textContent = EQ[k][i]);
+  const tx = trains[k].position.x = 0; const ey = k === 'future' ? FUT_H : 0; controls.target.set(0, 2.5 + ey, 0); camera.position.set(0, 16 + ey, 46); camGoal = null; lastX = 0;
+  applyTrain(); updateUI();
+}
+
+// ---------- Graphs ----------
+const GCFG = [['displacement', 'Displacement–time', 's (m)', '#e3b55a'], ['velocity', 'Velocity–time', 'v (m/s)', '#d9783a'], ['acceleration', 'Acceleration–time', 'a (m/s²)', '#c9c28a']];
+function drawGraph(cv, fn, title, ylab, color) {
+  const dpr = devicePixelRatio || 1, w = cv.clientWidth, h = cv.clientHeight; if (!w) return;
+  if (cv.width !== Math.round(w * dpr)) { cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr); }
+  const c = cv.getContext('2d'); c.setTransform(dpr, 0, 0, dpr, 0, 0); c.clearRect(0, 0, w, h);
+  const css = getComputedStyle(document.documentElement), fg = css.getPropertyValue('--fg').trim(), mu = css.getPropertyValue('--muted').trim(), bd = css.getPropertyValue('--border').trim();
+  let lo = 0, hi = 0; for (let i = 0; i <= 100; i++) { const y = fn(i * T_MAX / 100); lo = Math.min(lo, y); hi = Math.max(hi, y); }
+  if (hi - lo < 1) hi = lo + 1; const pad = (hi - lo) * 0.08; hi += pad; if (lo < 0) lo -= pad;
+  const L = 44, R = 10, T = 24, B = 32, pw = w - L - R, ph = h - T - B;
+  const X = x => L + x / T_MAX * pw, Y = y => T + (hi - y) / (hi - lo) * ph;
+  c.font = '11px system-ui,sans-serif'; c.lineWidth = 1; c.textBaseline = 'middle';
+  c.fillStyle = fg; c.textAlign = 'left'; c.font = '600 12px system-ui,sans-serif'; c.fillText(title, L, 10); c.font = '11px system-ui,sans-serif';
+  for (let i = 0; i <= 4; i++) { const v = lo + (hi - lo) * i / 4, y = Y(v); c.strokeStyle = bd; c.beginPath(); c.moveTo(L, y); c.lineTo(w - R, y); c.stroke(); c.fillStyle = mu; c.textAlign = 'right'; c.fillText(v.toFixed(Math.abs(hi - lo) < 10 ? 1 : 0), L - 5, y); }
+  c.textAlign = 'center'; c.textBaseline = 'top';
+  for (let i = 0; i <= 5; i++) { const x = X(i); c.strokeStyle = bd; c.beginPath(); c.moveTo(x, T); c.lineTo(x, T + ph); c.stroke(); c.fillStyle = mu; c.fillText(i, x, T + ph + 4); }
+  c.fillStyle = mu; c.fillText('t (s)', L + pw / 2, h - 13);
+  c.save(); c.translate(11, T + ph / 2); c.rotate(-Math.PI / 2); c.textBaseline = 'middle'; c.fillText(ylab, 0, 0); c.restore();
+  if (lo < 0) { c.strokeStyle = mu; c.beginPath(); c.moveTo(L, Y(0)); c.lineTo(w - R, Y(0)); c.stroke(); }
+  const path = (a, b) => { c.beginPath(); for (let i = 0; i <= 100; i++) { const x = a + (b - a) * i / 100, px = X(x), py = Y(fn(x)); i ? c.lineTo(px, py) : c.moveTo(px, py); } c.stroke(); };
+  c.lineWidth = 2; c.strokeStyle = color; c.globalAlpha = 0.3; path(0, T_MAX); c.globalAlpha = 1; if (t > 0) path(0, t);
+  c.fillStyle = color; for (let i = 0; i <= 5; i++) { c.beginPath(); c.arc(X(i), Y(fn(i)), 3, 0, 7); c.fill(); }
+  c.strokeStyle = fg; c.lineWidth = 1; c.setLineDash([4, 3]); c.beginPath(); c.moveTo(X(t), T); c.lineTo(X(t), T + ph); c.stroke(); c.setLineDash([]);
+  c.fillStyle = fg; c.beginPath(); c.arc(X(t), Y(fn(t)), 4.5, 0, 7); c.fill();
+}
+function drawGraphs() { GCFG.forEach((g, i) => drawGraph($('g' + i), trainModels[cur][g[0]], g[1], g[2], g[3])); }
+
+// ---------- Controls ----------
+$('start').onclick = () => { if (t >= tEnd) { t = 0; } running = true; };
+$('tend').oninput = e => { tEnd = +e.target.value; $('tendv').textContent = tEnd.toFixed(1) + ' s'; if (t > tEnd) t = tEnd; applyTrain(); updateUI(); };
+$('pause').onclick = () => { running = false; };
+$('reset').onclick = () => { running = false; t = 0; applyTrain(); updateUI(); };
+document.querySelectorAll('#nav button').forEach(b => b.onclick = () => { location.hash = b.dataset.env; });
+document.querySelectorAll('[data-cam]').forEach(b => b.onclick = () => setCam(b.dataset.cam));
+
+function resize() { const w = view.clientWidth, h = view.clientHeight; if (!w || !h) return; renderer.setSize(w, h); camera.aspect = w / h; camera.updateProjectionMatrix(); drawGraphs(); }
+new ResizeObserver(resize).observe(view); addEventListener('resize', drawGraphs);
+
+// ---------- Loop ----------
+const clock = new THREE.Clock(), tmp = new THREE.Vector3();
+let lastX = 0;
+function loop() {
+  requestAnimationFrame(loop);
+  if (heroOn) renderHero();
+  if (!simOn) { clock.getDelta(); return; }
+  const dt = Math.min(clock.getDelta(), 0.1);
+  if (running) { t = Math.min(tEnd, t + dt); if (t >= tEnd) running = false; applyTrain(); updateUI(); }
+  const tx = trains[cur].position.x, dx = tx - lastX; lastX = tx;
+  controls.target.x += dx; camera.position.x += dx;
+  if (camGoal) { tmp.set(controls.target.x + camGoal[0], camGoal[1] + (cur === 'future' ? FUT_H : 0), camGoal[2]); camera.position.lerp(tmp, 0.08); if (camera.position.distanceTo(tmp) < 0.1) camGoal = null; }
+  animSmoke(); controls.update(); renderer.render(scene, camera);
+}
+// ---------- Hero: rotating steam locomotive on a turntable ----------
+const hv = document.getElementById('heroview');
+const hr = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+hr.setPixelRatio(Math.min(devicePixelRatio, 2)); hv.appendChild(hr.domElement);
+const hs = new THREE.Scene(), hc = new THREE.PerspectiveCamera(32, 1.6, 1, 400);
+hs.add(new THREE.HemisphereLight(0xfff1d6, 0x6b5a44, 1.0));
+const hl = new THREE.DirectionalLight(0xffe2b0, 1.0); hl.position.set(30, 50, 40); hs.add(hl);
+const hg = new THREE.Group(); hs.add(hg);
+const ht = buildSteam(); ht.position.set(19, 0.73, 0); hg.add(ht);
+cyl(30, 30, 0.6, 0x2e271f, 0, -0.4, 0, hg, 48); cyl(30.6, 30.6, 0.3, 0xb08a3e, 0, -0.55, 0, hg, 48);
+box(64, 0.4, 3.8, 0x5d5346, 0, 0.2, 0, hg); [-0.72, 0.72].forEach(z => box(64, 0.22, 0.14, 0x7a5a44, 0, 0.62, z, hg));
+for (let i = 0; i < 58; i++) box(0.35, 0.15, 2.7, 0x4a3524, -31.5 + i * 1.1, 0.47, 0, hg);
+function heroResize() { const w = hv.clientWidth, h = hv.clientHeight; if (!w || !h) return; hr.setSize(w, h); hc.aspect = w / h; hc.updateProjectionMatrix(); const d = Math.max(70, 110 / hc.aspect); hc.position.set(0, d * 0.3, d); hc.lookAt(0, 6, 0); }
+new ResizeObserver(heroResize).observe(hv);
+function renderHero() {
+  const T = performance.now() / 1000; hg.rotation.y = T * 0.3;
+  ht.userData.puffs.forEach((m, i) => { const a = (T * 0.18 + i / 12) % 1; m.position.set(3.9 - a * 16, 5.4 + a * 9, Math.sin(i * 2 + a * 3) * 1.2); m.scale.setScalar(0.7 + a * 2.6); m.material.opacity = 0.8 * (1 - a); });
+  hr.render(hs, hc);
+}
+let simOn = false, heroOn = false;
+
+// ---------- Scroll journey: stylised trains stop at each era ----------
+const PC = 0xfff1e0, PO = 0xe8682a, PK = 0x3d3a45;
+function jSteam() {
+  const g = new THREE.Group(), w = [];
+  box(11, 0.4, 1.4, PK, 0, 1.1, 0, g); cyl(1.15, 1.15, 6.5, PK, 1.5, 2.7, 0, g, 24, true); cyl(1.18, 1.18, 0.4, PO, 5.1, 2.7, 0, g, 24, true); cyl(0.5, 0.7, 1.6, PO, 4, 4.6, 0, g, 16);
+  box(3, 3.3, 2.7, PC, -3, 3, 0, g); box(3.6, 0.35, 3.2, PO, -3, 4.8, 0, g); box(4.2, 2, 2.5, PK, -7.4, 2.2, 0, g); box(4.22, 0.3, 2.52, PO, -7.4, 1.4, 0, g);
+  [-0.4, 1.9, 4.2].forEach(x => [-0.72, 0.72].forEach(z => wheel(g, 0.9, x, z, PO, w))); [-6.2, -8.6].forEach(x => [-0.72, 0.72].forEach(z => wheel(g, 0.55, x, z, PK, w)));
+  [-17, -29].forEach(x => { box(11, 0.4, 1.4, PK, x, 1.1, 0, g); cyl(1.5, 1.5, 11, PC, x, 2.9, 0, g, 24, true).scale.x = 0.85; box(11.02, 0.3, 2.9, PO, x, 2.4, 0, g); box(9.6, 0.55, 2.95, PK, x, 3.3, 0, g); [-3.5, 3.5].forEach(bx => [-0.72, 0.72].forEach(z => wheel(g, 0.45, x + bx, z, PK, w))); });
+  g.userData.puffs = []; for (let i = 0; i < 12; i++) { const m = ball(1, 0xffffff, 0, 0, 0, g); m.material = new THREE.MeshLambertMaterial({ color: 0xffffff, transparent: true, opacity: 0.7, depthWrite: false }); g.userData.puffs.push(m); }
+  g.userData.wheels = w; return g;
+}
+function jPod(n, C, nose) {
+  const g = new THREE.Group(), w = [];
+  for (let i = 0; i < n; i++) { const x = (i - (n - 1) / 2) * 10; cyl(1.5, 1.5, 9.6, C, x, 2.7, 0, g, 28, true).scale.x = 0.9; box(9.7, 0.28, 3.02, PO, x, 2.1, 0, g, nose ? 0.8 : 0); box(8.4, 0.55, 2.96, PK, x, 3, 0, g); box(7.8, 0.5, 2.3, PK, x, 1.15, 0, g); if (!nose) [-3, 3].forEach(bx => [-0.72, 0.72].forEach(z => wheel(g, 0.5, x + bx, z, PK, w))); }
+  const e = (n - 1) * 5 + 4.8; ball(1, C, e, 2.7, 0, g, [4.4, 1.35, 1.5]); ball(1, C, -e, 2.7, 0, g, [4.4, 1.35, 1.5]); ball(1, PK, e + 1.2, 3, 0, g, [2.4, 0.6, 1.15]);
+  g.userData.wheels = w; return g;
+}
+hs.remove(hg); hs.background = new THREE.Color(0xf6e7d8); hs.fog = new THREE.Fog(0xf6e7d8, 300, 900);
+hr.shadowMap.enabled = true; hr.shadowMap.type = THREE.PCFSoftShadowMap;
+hl.color.set(0xfff0dd); hl.intensity = 0.95; hl.castShadow = true; hl.shadow.mapSize.set(2048, 2048); Object.assign(hl.shadow.camera, { left: -100, right: 100, top: 100, bottom: -100, near: 10, far: 500 }); hl.shadow.camera.updateProjectionMatrix(); hs.add(hl.target);
+const STOPS = [100, 230, 360, 490], jw = new THREE.Group(); hs.add(jw);
+const JT = [jSteam(), jPod(3, PC, false), jPod(4, 0xffffff, true)]; JT.forEach(t => jw.add(t));
+(function () {
+  const g = jw, S = STOPS, gr = new THREE.Mesh(new THREE.PlaneGeometry(1600, 700), mat(0xf3e3d3)); gr.rotation.x = -Math.PI / 2; gr.position.set(250, 0, 0); g.add(gr);
+  const tk = (z, a, b) => { const L = b - a, c = (a + b) / 2; box(L, 0.4, 3.8, 0xe9d6c2, c, 0.2, z, g); [-0.72, 0.72].forEach(s => box(L, 0.22, 0.14, 0xc9561d, c, 0.62, z + s, g)); };
+  tk(0, -100, 650); [-11, 11].forEach(z => tk(z, -100, 160));
+  const n = 576, sl = new THREE.InstancedMesh(new THREE.BoxGeometry(0.4, 0.15, 2.7), mat(0xb98a5e), n), d = new THREE.Object3D(); for (let i = 0; i < n; i++) { d.position.set(-100 + i * 1.3, 0.47, 0); d.updateMatrix(); sl.setMatrixAt(i, d.matrix); } g.add(sl);
+  const arch = new THREE.Mesh(new THREE.CylinderGeometry(15, 15, 140, 28, 1, true, 0, Math.PI), new THREE.MeshLambertMaterial({ color: 0xffe3a8, transparent: true, opacity: 0.5, side: THREE.DoubleSide })); arch.rotation.z = Math.PI / 2; arch.position.set(-20, 0, 0); g.add(arch);
+  for (let x = -85; x <= 45; x += 10) { const r = new THREE.Mesh(new THREE.TorusGeometry(15, 0.4, 6, 28, Math.PI), mat(0x2f4a3a)); r.rotation.y = Math.PI / 2; r.position.x = x; g.add(r); [-15, 15].forEach(z => { cyl(0.5, 0.5, 9, 0x2f4a3a, x, 4.5, z, g, 8); const l = ball(0.5, 0xffd98a, x, 8.5, z * 0.93, g); l.material = mat(0xffd98a, 1); }); }
+  box(2, 18, 34, 0xe9c79c, -92, 9, 0, g); box(0.5, 12, 20, 0xffd98a, -90.8, 10, 0, g, 1);
+  [-5.5, 5.5].forEach(z => box(140, 1, 6, 0xe6d3bf, -20, 0.5, z, g));
+  const fig = (x, z, c) => { cyl(0.3, 0.4, 1.5, c, x, 1.75, z, g, 8); ball(0.32, 0xf1c9a5, x, 2.8, z, g); };
+  for (let i = 0; i < 16; i++) { fig(-80 + rnd() * 120, (i % 2 ? 5.5 : -5.5) + (rnd() - 0.5) * 3, [PK, PO, 0x8a5a3c, 0xf3d9b8][i % 4]); if (i % 3 === 0) box(1.2, 0.9, 0.8, 0x9c6b3f, -80 + rnd() * 120, 1.45, (i % 2 ? 4 : -4), g); }
+  box(10, 4, 6, 0xf6e8d4, S[1], 2, -12, g); const rf = new THREE.Mesh(new THREE.ConeGeometry(8, 3.5, 4), mat(PO)); rf.rotation.y = Math.PI / 4; rf.scale.set(1, 1, 0.7); rf.position.set(S[1], 5.7, -12); g.add(rf); box(26, 0.8, 4, 0xe6d3bf, S[1], 0.4, -5, g);
+  cyl(1.8, 1.8, 3, 0x9a6b43, S[1] + 14, 9, -12, g, 16); cyl(0, 2.1, 1.5, PO, S[1] + 14, 11.2, -12, g, 16); [-1, 1].forEach(a => [-1, 1].forEach(b => cyl(0.2, 0.2, 7.5, 0x6b4a32, S[1] + 14 + a * 1.2, 3.75, -12 + b * 1.2, g, 6)));
+  for (let i = 0; i < 10; i++) pine(g, S[1] - 20 + rnd() * 45, 0, -(16 + rnd() * 18), 1 + rnd() * 0.7); [0, 5, 9].forEach(o => fig(S[1] - 8 + o, -5, PK));
+  box(44, 1, 5, 0xefe6dc, S[2], 0.5, -5.5, g); box(40, 0.4, 7, PK, S[2], 6.5, -5.5, g); for (let i = 0; i < 5; i++) cyl(0.2, 0.2, 5.5, 0xd9d0c7, S[2] - 16 + i * 8, 3.75, -7.5, g, 8);
+  box(16, 10, 8, 0xcfe3ea, S[2], 5, -16, g); box(16.1, 1.2, 8.1, PO, S[2], 9.4, -16, g); for (let i = 0; i < 9; i++) { cyl(0.15, 0.15, 8, 0x777777, S[2] - 50 + i * 12, 4, 4, g, 6); box(0.2, 0.2, 4.5, 0x777777, S[2] - 50 + i * 12, 7.6, 2, g); } box(110, 0.05, 0.05, 0x333333, S[2], 7.2, 0, g); [0, 6, 12].forEach(o => fig(S[2] - 8 + o, -5.5, PO));
+  box(40, 1, 5, 0xf6efe8, S[3], 0.5, -5.5, g); [-14, 0, 14].forEach(dx => { const t = new THREE.Mesh(new THREE.TorusGeometry(5.5, 0.4, 8, 32), mat(PO, 0.8)); t.rotation.y = Math.PI / 2; t.position.set(S[3] + dx, 5.2, 0); g.add(t); });
+  [[-15, -18], [8, -22], [24, -16], [-2, 22]].forEach(p => { cyl(1.1, 1.7, 26, 0xfffaf4, S[3] + p[0], 13, p[1], g, 16); ball(1.6, PO, S[3] + p[0], 27, p[1], g); }); [0, 6].forEach(o => fig(S[3] - 4 + o, -5.5, PK));
+  for (let i = 0; i < 40; i++) { const x = -100 + rnd() * 680, z = (rnd() < 0.5 ? -1 : 1) * (22 + rnd() * 45); box(6, 4, 5, 0xfdf6ee, x, 2, z, g); const r = new THREE.Mesh(new THREE.ConeGeometry(4.6, 2.6, 4), mat(PO)); r.rotation.y = Math.PI / 4; r.position.set(x, 5.3, z); g.add(r); }
+  for (let i = 0; i < 60; i++) { const x = -100 + rnd() * 680, z = (rnd() < 0.5 ? -1 : 1) * (18 + rnd() * 60); cyl(0.3, 0.4, 2, 0x8a6a4c, x, 1, z, g, 6); ball(2, 0xa8c987, x, 3.6, z, g); }
+  g.traverse(o => { if (o.isMesh) o.castShadow = o.receiveShadow = true; }); arch.castShadow = false; JT[0].userData.puffs.forEach(p => p.castShadow = false);
+})();
+let jd = 1, lastEra = -1; const introAt = performance.now();
+function heroResize() { const w = hv.clientWidth, h = hv.clientHeight; if (!w || !h) return; hr.setSize(w, h); hc.aspect = w / h; hc.fov = 20; hc.near = 10; hc.far = 2500; hc.updateProjectionMatrix(); jd = Math.max(1, 1.7 / hc.aspect); }
+function renderHero() {
+  const T = performance.now() / 1000; cur += (Math.max(0, Math.min(3, scrollY / innerHeight)) - cur) * 0.07;
+  const k = 1 - Math.pow(1 - Math.min(1, (performance.now() - introAt) / 6000), 3), i = Math.min(2, Math.floor(cur)), f = cur - i;
+  const sx = STOPS[i] + (STOPS[i + 1] - STOPS[i]) * f, x = -35 * (1 - k) + sx * k, m = cur < 1.5 ? 0 : cur < 2.5 ? 1 : 2, tr = JT[m];
+  JT.forEach((t, j) => { t.visible = j === m; }); tr.position.set(x, 0.73 + (m === 2 ? 0.5 : 0), 0); tr.userData.wheels.forEach(w => { w.p.rotation.z = -x / w.r; });
+  if (m === 0) tr.userData.puffs.forEach((p, n) => { const a = (T * 0.18 + n / 12) % 1; p.position.set(3.9 - a * 16, 5.4 + a * 9, Math.sin(n * 2 + a * 3) * 1.2); p.scale.setScalar(0.7 + a * 2.6); p.material.opacity = 0.8 * (1 - a); });
+  const fx = sx - 40; hc.position.set(fx - 70 * jd, 85 * jd, 125 * jd); hc.lookAt(fx, 0, 0); hl.position.set(fx - 50, 120, 70); hl.target.position.set(fx, 0, 0);
+  const era = Math.round(cur); if (era !== lastEra) { lastEra = era; document.querySelectorAll('.jnav button').forEach((b, n) => b.classList.toggle('on', n + 1 === era)); }
+  hr.render(hs, hc);
+}
+document.querySelectorAll('[data-to]').forEach(b => b.onclick = () => scrollTo({ top: +b.dataset.to * innerHeight, behavior: 'smooth' }));
+document.querySelectorAll('[data-go]').forEach(b => b.onclick = () => steamGo(b.dataset.go));
+
+// ---------- Extra detail pass for trains and surroundings ----------
+function man(g, x, y, z, c) { cyl(0.3, 0.42, 1.5, c, x, y + 0.75, z, g, 8); ball(0.3, 0xf1c9a5, x, y + 1.75, z, g); cyl(0.38, 0.38, 0.1, 0x1a1410, x, y + 2.05, z, g, 10); }
+function glow(g, r, c, x, y, z, k) { const m = ball(r, c, x, y, z, g); m.material = mat(c, k || 1); return m; }
+function detailSteam(g) {
+  [-1, 1].forEach(s => { cyl(0.35, 0.35, 1.8, 0x262626, 3.6, 1.45, s * 1.05, g, 12, true); cyl(0.1, 0.1, 2.8, 0x9a9a9a, 2.3, 1.45, s * 1.2, g, 8, true); box(0.5, 0.5, 0.45, 0x333333, 4.8, 1.45, s * 1.05, g); box(0.1, 1.4, 0.1, 0x777777, 5.6, 1.6, s * 0.6, g); });
+  cyl(0.15, 0.15, 0.9, 0xb8862b, -0.4, 4.15, 0, g, 10); cyl(0.4, 0.22, 0.45, 0xb8862b, 3.0, 3.95, 0, g, 12); ball(1, 0x0e0e0e, -7.4, 3.7, 0, g, [1.6, 0.55, 0.95]);
+  [-15.8, -27.4, -39].forEach(x => {
+    [-3, 0, 3].forEach(o => cyl(0.25, 0.25, 0.35, 0x333333, x + o, 4.95, 0, g, 10));
+    [-1, 1].forEach(s => box(0.9, 1.6, 0.05, 0x3a1f1c, x + 1.8, 2.4, s * 1.32, g));
+    box(0.9, 0.25, 0.3, 0x2a2a2a, x + 5.8, 1.1, 0, g); box(0.5, 2.6, 2.2, 0x1e1e1e, x + 5.8, 2.8, 0, g);
+  });
+}
+function detailMod(g) {
+  for (let i = 0; i < 6; i++) {
+    const x = (i - 3.5) * 9.4;
+    for (let k = 0; k < 7; k++) box(0.75, 0.42, 2.86, 0x35566e, x - 3.6 + k * 1.2, 3.25, 0, g);
+    [-2, 2].forEach(o => box(2.2, 0.3, 1.3, 0xc9ccd0, x + o, 4.35, 0, g));
+    box(0.5, 2.5, 2.3, 0x23272c, x + 4.7, 2.6, 0, g); box(8, 0.12, 2.6, 0x23272c, x, 0.75, 0, g);
+  }
+}
+function detailHyper(g) {
+  for (let i = 0; i < 4; i++) {
+    const x = (i - 1.5) * 9.4;
+    for (let k = 0; k < 6; k++) box(0.95, 0.4, 2.99, 0xffe7b0, x - 3.5 + k * 1.4, 2.95, 0, g, 0.8);
+    box(7, 0.06, 1.4, 0x20304a, x, 4.0, 0, g); box(9, 0.07, 2.2, 0xffeec4, x, 3.55, 0, g, 1);
+  }
+}
+function detailPast(g) {
+  const cx = (X0 + X1) / 2, sg = () => (rnd() < 0.5 ? -1 : 1);
+  for (let x = X0; x < X1; x += 22) { cyl(0.15, 0.15, 7, 0x5a4630, x, 3.5, 3.6, g, 6); box(0.15, 0.15, 2.2, 0x5a4630, x, 6.7, 3.6, g); [-0.9, 0.9].forEach(o => ball(0.12, 0xdfe7ea, x, 6.9, 3.6 + o, g)); }
+  box(X1 - X0, 0.03, 0.03, 0x222222, cx, 6.9, 3.6, g);
+  for (let i = 0; i < 14; i++) { const x = -90 + rnd() * 200, z = sg() * (9 + rnd() * 22); cyl(0, 1.7, 2.6, 0xd7b95a, x, 1.3, z, g, 10); ball(0.5, 0xd7b95a, x, 2.8, z, g); }
+  for (let i = 0; i < 26; i++) { const x = -100 + rnd() * 230, z = sg() * (14 + rnd() * 40); cyl(0.15, 0.2, 4, 0xf0ede4, x, 2, z, g, 6); ball(1.5, 0x9fc46a, x, 4.8, z, g, [1, 1.3, 1]); }
+  for (let i = 0; i < 70; i++) ball(0.18, [0xffffff, 0xf5d142, 0xb58ad6][i % 3], -100 + rnd() * 230, 0.3, sg() * (4 + rnd() * 20), g);
+  for (let i = 0; i < 14; i++) ball(1, 0x8a8a82, -100 + rnd() * 230, 0.3, sg() * (6 + rnd() * 25), g, [1.5, 0.8, 1.1]);
+  box(14, 4, 6, 0x8a5a3a, 70, 2, -10, g); box(15, 0.4, 7, 0x4a2f20, 70, 4.2, -10, g);
+  const rf = new THREE.Mesh(new THREE.ConeGeometry(9.5, 2.8, 4), mat(0x5a3a2a)); rf.rotation.y = Math.PI / 4; rf.scale.set(1, 1, 0.65); rf.position.set(70, 5.8, -10); g.add(rf);
+  box(26, 0.8, 3.6, 0xa39a8c, 70, 0.4, -4.4, g); [-9, -3, 3, 9].forEach(o => { cyl(0.1, 0.1, 3.4, 0x222222, 70 + o, 2.5, -3.2, g, 6); glow(g, 0.3, 0xffe2a0, 70 + o, 4.3, -3.2); });
+  box(2.6, 0.12, 0.7, 0x5a3a2a, 66, 1.35, -5.6, g); box(1.2, 1, 0.9, 0x9c6b3f, 76, 1.3, -4.6, g); [-8, 6].forEach(o => man(g, 70 + o, 0.8, -4.4, 0x3a2f2a));
+}
+function detailPresent(g) {
+  box(3, 0.4, 26, 0x8e8a80, 60, 8.5, 2, g); box(3.6, 0.3, 26, 0x6b6a66, 60, 10.2, 2, g); box(2.2, 7.5, 2.2, 0xa9a59c, 60, 4.75, -9, g); box(2.2, 8.5, 2.2, 0xa9a59c, 60, 4.25, 15, g);
+  [-1.4, 1.4].forEach(s => box(0.1, 1, 26, 0x555a60, 60 + s, 9.2, 2, g));
+  for (let i = 0; i < 14; i++) man(g, -20 + rnd() * 120, 1, -7 + (rnd() - 0.5) * 5, [0x2b2b33, 0x6b3a2a, 0x3a4a5a, 0x8a8478][i % 4]);
+  cyl(0.1, 0.1, 3.5, 0x555a60, 40, 2.75, -3.6, g, 6); box(0.2, 1.1, 5, 0x1d3f8a, 40, 4, -3.6, g); box(0.05, 0.9, 4.6, 0xf3d88a, 40.12, 4, -3.6, g, 0.9);
+  [0xc0392b, 0x2b6cb0, 0x2f8f5a].forEach((c, i) => box(1.1, 2.1, 0.9, c, 22 + i * 1.4, 2.05, -10.4, g));
+  for (let x = -40; x < 120; x += 30) { cyl(0.08, 0.08, 4, 0x333333, x, 3, -10.6, g, 6); glow(g, 0.28, 0xffd8a0, x, 5.1, -10.6); }
+  const sun = ball(14, 0xffe2b0, 180, 45, -230, g); sun.material = new THREE.MeshBasicMaterial({ color: 0xffe2b0, fog: false });
+}
+function detailFuture(g) {
+  const hall = new THREE.Mesh(new THREE.CylinderGeometry(4.6, 4.6, 40, 24, 1, true, 0, Math.PI), new THREE.MeshLambertMaterial({ color: 0xcfe8ff, transparent: true, opacity: 0.25, side: THREE.DoubleSide })); hall.rotation.z = Math.PI / 2; hall.position.set(45, FUT_H, 0); g.add(hall);
+  for (let x = 27; x <= 63; x += 6) { const r = new THREE.Mesh(new THREE.TorusGeometry(4.6, 0.12, 6, 20, Math.PI), mat(0xdfe6ee)); r.rotation.y = Math.PI / 2; r.position.set(x, FUT_H, 0); g.add(r); }
+  for (let x = X0; x < X1; x += 20) { cyl(0.1, 0.1, 6, 0x3a3f48, x + 5, 3, 24, g, 6); [0xff3030, 0xffc030, 0x30ff60].forEach((c, i) => glow(g, 0.18, c, x + 5, 5.5 + i * 0.5, 23.6, 1.2)); }
+  for (let i = 0; i < 12; i++) { const x = X0 + rnd() * 200, z = 12 + (i % 3) * 2.6; box(4, 1.2, 1.8, 0x303640, x, 0.8, z, g); [-0.6, 0.6].forEach(s => glow(g, 0.18, 0xfff4d0, x + 2, 0.9, z + s, 1.4)); }
+  [30, 80, 110].forEach((x, i) => box(0.4, 6, 10, [0xffb347, 0xff6b6b, 0x6bd5ff][i], x, 14, -14, g, 0.9));
+  for (let x = X0; x < X1; x += 14) { cyl(0.2, 0.25, 2.5, 0x4a3a2a, x, 1.25, 27.5, g, 6); ball(2, 0x3d5a3d, x, 4, 27.5, g); }
+  const base = winTex();
+  for (let i = 0; i < 24; i++) { const w = 10 + rnd() * 10, h = 40 + rnd() * 70, x = -100 + rnd() * 300, z = (i % 2 ? 1 : -1) * (110 + rnd() * 60), tx = base.clone(); tx.repeat.set(w / 6, h / 6); tx.needsUpdate = true; const b = new THREE.Mesh(new THREE.BoxGeometry(w, h, w), new THREE.MeshLambertMaterial({ map: tx, emissiveMap: tx, emissive: 0xffffff })); b.position.set(x, h / 2, z); g.add(b); }
+}
+function detailPass() { detailSteam(trains.past); detailMod(trains.present); detailHyper(trains.future); detailPast(envs.past); detailPresent(envs.present); detailFuture(envs.future); }
+
+// ---------- Cinematic Victorian station: hero, camera move, era selection ----------
+const GL = 0xe9b765, DK = 0x2f4a3a, HX0 = -60, HC = 50, HL = 220;
+const ss = new THREE.Scene(), sc = new THREE.PerspectiveCamera(55, 1.8, 0.5, 500);
+ss.background = new THREE.Color(GL); ss.fog = new THREE.Fog(GL, 70, 260); hr.shadowMap.enabled = false;
+ss.add(new THREE.HemisphereLight(0xffe2b0, 0x5a4630, 0.95)); const sun2 = new THREE.DirectionalLight(0xffd08a, 0.9); sun2.position.set(150, 30, 10); ss.add(sun2);
+const HT = buildSteam(), BT = buildSteam(), hpv = new THREE.Group(), BIL = []; detailSteam(HT); detailSteam(BT);
+(function () {
+  const g = ss; ground(g, 0x7a6850, 700);
+  const arch = new THREE.Mesh(new THREE.CylinderGeometry(15, 15, HL, 28, 1, true, 0, Math.PI), new THREE.MeshLambertMaterial({ color: 0xffdc8a, transparent: true, opacity: 0.55, side: THREE.DoubleSide })); arch.rotation.z = Math.PI / 2; arch.position.x = HC; g.add(arch);
+  for (let x = HX0; x <= HX0 + HL; x += 10) { const r = new THREE.Mesh(new THREE.TorusGeometry(15, 0.4, 6, 28, Math.PI), mat(DK)); r.rotation.y = Math.PI / 2; r.position.x = x; g.add(r); [-15, 15].forEach(z => { cyl(0.5, 0.5, 9, DK, x, 4.5, z, g, 8); const l = ball(0.5, 0xffd98a, x, 8, z * 0.9, g); l.material = mat(0xffd98a, 1); }); }
+  for (let a = -75; a <= 75; a += 25) { const r = a * Math.PI / 180; box(HL, 0.3, 0.3, DK, HC, 15 * Math.cos(r), 15 * Math.sin(r), g); }
+  const tk = z => { box(HL + 60, 0.4, 3.8, 0x5a4a3a, HC, 0.2, z, g); [-0.72, 0.72].forEach(s => box(HL + 60, 0.22, 0.14, 0x8a5a3a, HC, 0.62, z + s, g)); };
+  [-11, 0, 11].forEach(tk);
+  const NS = Math.floor((HL + 60) / 1.3), sl = new THREE.InstancedMesh(new THREE.BoxGeometry(0.4, 0.15, 2.7), mat(0x4a3524), NS * 3), d = new THREE.Object3D(); let q = 0;
+  [-11, 0, 11].forEach(z => { for (let i = 0; i < NS; i++) { d.position.set(HX0 - 30 + i * 1.3, 0.47, z); d.updateMatrix(); sl.setMatrixAt(q++, d.matrix); } }); g.add(sl);
+  [-5.5, 5.5].forEach(z => box(HL, 1, 6, 0xd9c7a5, HC, 0.5, z, g)); [-2.7, 2.7, -8.3, 8.3].forEach(z => box(HL, 0.03, 0.25, 0xe3b55a, HC, 1.02, z, g));
+  box(2, 30, 40, 0x8a6a40, 162, 15, 0, g); box(0.5, 24, 26, 0xffd27a, 160.8, 12.5, 0, g, 1.2); for (let i = 0; i < 7; i++) box(0.6, 24, 0.35, DK, 160.5, 12.5, -12 + i * 4, g); for (let i = 0; i < 4; i++) box(0.6, 0.35, 26, DK, 160.5, 2 + i * 7, 0, g);
+  [40, 100].forEach(x => { cyl(2.5, 2.5, 0.4, 0x2b2118, x, 12, 0, g, 32, true); cyl(2.2, 2.2, 0.5, 0xf5ecd8, x, 12, 0, g, 32, true); box(0.6, 0.15, 0.15, 0x1a1410, x, 12.4, 0, g); box(0.6, 0.15, 0.15, 0x1a1410, x, 12, 0.4, g); });
+  const fig = (x, z, c) => { cyl(0.3, 0.42, 1.5, c, x, 1.75, z, g, 8); ball(0.3, 0xf1c9a5, x, 2.75, z, g); cyl(0.4, 0.4, 0.12, 0x1a1410, x, 3.1, z, g, 10); cyl(0.2, 0.2, 0.3, 0x1a1410, x, 3.25, z, g, 8); };
+  for (let i = 0; i < 50; i++) fig(-40 + rnd() * 190, (i % 2 ? 5.5 : -5.5) + (rnd() - 0.5) * 3.5, [0x1b1612, 0x2b2118, 0x4a2a2a, 0xe8dcc4, 0x3a2f44][i % 5]);
+  for (let i = 0; i < 14; i++) box(1.3, 1, 0.9, [0x9c6b3f, 0x6f4a2e, 0x3f5a3a][i % 3], -20 + rnd() * 60, 1.5, (i % 2 ? 4 : -4) + rnd(), g);
+  for (let i = 0; i < 8; i++) { const m = ball(1, 0xfff2d0, 120 + rnd() * 35, 8 + rnd() * 8, (rnd() - 0.5) * 20, g); m.material = new THREE.MeshLambertMaterial({ color: 0xfff2d0, transparent: true, opacity: 0.35, depthWrite: false }); m.userData.s = 6 + rnd() * 5; BIL.push(m); }
+  HT.rotation.y = Math.PI; hpv.add(HT); hpv.position.set(45, 0.73, 11); g.add(hpv); BT.rotation.y = Math.PI; BT.position.set(105, 0.73, -11); g.add(BT);
+})();
+const mv = document.getElementById('mview'), mr = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+mr.setPixelRatio(Math.min(devicePixelRatio, 2)); mv.appendChild(mr.domElement);
+const ms = new THREE.Scene(), mc = new THREE.PerspectiveCamera(35, 1.8, 1, 500), MP = [buildSteam(), buildModern(), buildHyper()], MCX = [-19, -9.4, 0], mpv = [];
+ms.add(new THREE.HemisphereLight(0xfff1d6, 0x6b5a44, 1.1)); const ml = new THREE.DirectionalLight(0xffe2b0, 1); ml.position.set(30, 60, 50); ms.add(ml);
+MP.forEach((t, i) => { const pv = new THREE.Group(); t.position.set(-MCX[i], 0.73, 0); pv.add(t); box(64, 0.4, 3.8, 0x4a3a2a, 0, 0.2, 0, pv); [-0.72, 0.72].forEach(z => box(64, 0.22, 0.14, 0x8a5a3a, 0, 0.62, z, pv)); pv.position.x = (i - 1) * 38; pv.scale.setScalar(0.5); ms.add(pv); mpv.push(pv); });
+detailSteam(MP[0]); detailMod(MP[1]); detailHyper(MP[2]); mc.position.set(0, 34, 110); mc.lookAt(0, 10, 0);
+let st = 'hero', playT = -1, hov = -1; const sm = u => u * u * (3 - 2 * u), mix = (a, b, u) => a + (b - a) * u, txf = p => 45 - 110 * sm(Math.min(1, p / 7));
+function setState(s) { st = s; playT = -1; $('herotxt').classList.toggle('off', s !== 'hero'); $('pick').classList.toggle('on', s === 'menu'); hv.classList.toggle('blur', s === 'menu'); }
+$('herotxt').onclick = () => { if (st === 'hero' && playT < 0) { playT = performance.now(); $('herotxt').classList.add('off'); } };
+document.querySelectorAll('.col').forEach((c, i) => { c.onmouseenter = () => { hov = i; }; c.onmouseleave = () => { hov = -1; }; });
+function puffs(tr, T) { tr.userData.puffs.forEach((p, n) => { const a = (T * 0.18 + n / 12) % 1; p.position.set(3.9 - a * 16, 5.4 + a * 9, Math.sin(n * 2 + a * 3) * 1.2); p.scale.setScalar(0.7 + a * 2.6); p.material.opacity = 0.8 * (1 - a); }); }
+function heroResize() { const w = hv.clientWidth, h = hv.clientHeight; if (!w || !h) return; hr.setSize(w, h); sc.aspect = w / h; sc.updateProjectionMatrix(); }
+function mResize() { const w = mv.clientWidth, h = mv.clientHeight; if (!w || !h) return; mr.setSize(w, h); mc.aspect = w / h; mc.updateProjectionMatrix(); }
+new ResizeObserver(mResize).observe(mv);
+function renderHero() {
+  const now = performance.now(), T = now / 1000, p = playT < 0 ? -1 : (now - playT) / 1000; if (st === 'hero' && p > 7) setState('menu');
+  let P, L, f;
+  if (st === 'menu') { P = [-32 + Math.sin(T * 0.12) * 5, 58, 0]; L = [40, 0, 0]; f = 62; hpv.visible = false; }
+  else if (p < 0) { P = [-50, 6 + Math.sin(T * 0.5) * 0.15, 2]; L = [60, 6, 10]; f = 55; hpv.position.x = 45; hpv.visible = true; }
+  else {
+    const x = txf(p); hpv.position.x = x; hpv.visible = true;
+    if (p < 2.8) { const u = sm(p / 2.8); P = [mix(-50, -14, u), mix(6, 4, u), mix(2, 8.5, u)]; L = [mix(60, x - 6, u), mix(6, 3.5, u), mix(10, 11, u)]; f = mix(55, 38, u); }
+    else { const u = sm((p - 2.8) / 4.2); P = [mix(-14, -32, u), mix(4, 58, u), mix(8.5, 0, u)]; L = [mix(x - 6, 40, u), mix(3.5, 0, u), mix(11, 0, u)]; f = mix(38, 62, u); }
+  }
+  HT.userData.wheels.forEach(w => { w.p.rotation.z = -(45 - hpv.position.x) / w.r; }); puffs(HT, T); puffs(BT, T); puffs(MP[0], T);
+  BIL.forEach((m, i) => { m.scale.setScalar(m.userData.s * (1 + 0.1 * Math.sin(T * 0.5 + i))); });
+  sc.position.set(P[0], P[1], P[2]); sc.lookAt(L[0], L[1], L[2]); if (sc.fov !== f) { sc.fov = f; sc.updateProjectionMatrix(); }
+  hr.render(ss, sc);
+  if (st === 'menu') { mpv.forEach((pv, i) => { pv.rotation.y = T * 0.45 + i * 2; const s = pv.scale.x + ((hov === i ? 0.58 : 0.5) - pv.scale.x) * 0.1; pv.scale.setScalar(s); }); mr.render(ms, mc); }
+}
+function route() {
+  const h = location.hash.slice(1), isSim = ['past', 'present', 'future'].includes(h);
+  $('home').hidden = isSim; heroOn = !isSim; if (heroOn) { heroResize(); mResize(); setState(h === 'menu' ? 'menu' : 'hero'); } $('menu').hidden = true; $('app').hidden = !isSim;
+  simOn = isSim; if (isSim) { setEnv(h); resize(); } scrollTo(0, 0);
+}
+addEventListener('hashchange', route);
+function steamGo(hash) {
+  const o = $('steam'), hm = $('home'); o.classList.remove('go'); void o.offsetWidth; o.classList.add('go'); hm.classList.add('leave');
+  setTimeout(() => { location.hash = hash; hm.classList.remove('leave'); }, 650); setTimeout(() => o.classList.remove('go'), 1500);
+}
+document.querySelectorAll('#home a[href="#menu"], #menu .card').forEach(a => a.addEventListener('click', e => { e.preventDefault(); steamGo(a.getAttribute('href').slice(1)); }));
+resize(); loop(); route();
+</script>
+</body>
+</html>
